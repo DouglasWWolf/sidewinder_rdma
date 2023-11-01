@@ -1,0 +1,61 @@
+{
+   "ActiveEmotionalView":"No Loops",
+   "Default View_ScaleFactor":"1.0",
+   "Default View_TopLeft":"-374,-122",
+   "DisplayTieOff":"1",
+   "ExpandedHierarchyInLayout":"",
+   "No Loops_ExpandedHierarchyInLayout":"",
+   "No Loops_Layout":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
+#  -string -flagsOSRD
+preplace port AXIS_TX -pg 1 -lvl 3 -x 640 -y 60 -defaultsOSRD
+preplace port S_AXIS -pg 1 -lvl 0 -x 0 -y 200 -defaultsOSRD
+preplace port port-id_clk -pg 1 -lvl 0 -x 0 -y 240 -defaultsOSRD
+preplace port port-id_resetn -pg 1 -lvl 0 -x 0 -y 220 -defaultsOSRD
+preplace port port-id_READY_FOR_REQ -pg 1 -lvl 3 -x 640 -y 80 -defaultsOSRD
+preplace port port-id_REQ_ID_VALID -pg 1 -lvl 0 -x 0 -y 300 -defaultsOSRD
+preplace portBus REQ_ID_IN -pg 1 -lvl 0 -x 0 -y 140 -defaultsOSRD
+preplace inst row_buffer_fifo -pg 1 -lvl 1 -x 160 -y 60 -defaultsOSRD -pinDir S_AXIS right -pinY S_AXIS 0R -pinDir M_AXIS right -pinY M_AXIS 20R -pinDir s_axis_aresetn left -pinY s_axis_aresetn 0L -pinDir s_axis_aclk left -pinY s_axis_aclk 20L
+preplace inst request_mgr_core -pg 1 -lvl 2 -x 450 -y 60 -swap {0 1 2 3 8 5 6 7 4 9 10 11 12 13 14 15 16 20 19 17 18 21} -defaultsOSRD -pinDir AXIS_RBF left -pinY AXIS_RBF 0L -pinDir AXIS_RX0 left -pinY AXIS_RX0 140L -pinDir AXIS_RX1 left -pinY AXIS_RX1 20L -pinDir AXIS_TX right -pinY AXIS_TX 0R -pinDir clk left -pinY clk 280L -pinDir resetn left -pinY resetn 260L -pinBusDir REQ_ID_IN left -pinBusY REQ_ID_IN 160L -pinDir REQ_ID_VALID left -pinY REQ_ID_VALID 240L -pinDir READY_FOR_REQ right -pinY READY_FOR_REQ 20R
+preplace inst data_response_fifo -pg 1 -lvl 1 -x 160 -y 200 -defaultsOSRD -pinDir S_AXIS left -pinY S_AXIS 0L -pinDir M_AXIS right -pinY M_AXIS 0R -pinDir s_axis_aresetn left -pinY s_axis_aresetn 20L -pinDir s_axis_aclk left -pinY s_axis_aclk 40L
+preplace netloc REQ_ID_IN_1 1 0 2 NJ 140 280J
+preplace netloc REQ_ID_VALID_1 1 0 2 NJ 300 NJ
+preplace netloc qsfp_data_user_clk_out 1 0 2 40 340 N
+preplace netloc request_mgr_core_READY_FOR_REQ 1 2 1 NJ 80
+preplace netloc src_arst_1 1 0 2 20 320 N
+preplace netloc request_manager_AXIS_TX 1 2 1 NJ 60
+preplace netloc request_mgr_core_AXIS_RBF 1 1 1 N 60
+preplace netloc row_buffer_fifo_M_AXIS 1 1 1 N 80
+preplace netloc Conn1 1 0 1 NJ 200
+preplace netloc ch1_data_response_fifo_M_AXIS 1 1 1 N 200
+levelinfo -pg 1 0 160 450 640
+pagesize -pg 1 -db -bbox -sgen -170 0 820 400
+",
+   "No Loops_ScaleFactor":"1.0",
+   "No Loops_TopLeft":"-374,-143",
+   "guistr":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
+#  -string -flagsOSRD
+preplace port AXIS_TX -pg 1 -lvl 3 -x 640 -y 170 -defaultsOSRD
+preplace port S_AXIS -pg 1 -lvl 0 -x 0 -y 60 -defaultsOSRD
+preplace port port-id_clk -pg 1 -lvl 0 -x 0 -y 260 -defaultsOSRD
+preplace port port-id_resetn -pg 1 -lvl 0 -x 0 -y 240 -defaultsOSRD
+preplace port port-id_READY_FOR_REQ -pg 1 -lvl 3 -x 640 -y 190 -defaultsOSRD
+preplace port port-id_REQ_ID_VALID -pg 1 -lvl 0 -x 0 -y 220 -defaultsOSRD
+preplace portBus REQ_ID_IN -pg 1 -lvl 0 -x 0 -y 200 -defaultsOSRD
+preplace inst row_buffer_fifo -pg 1 -lvl 1 -x 160 -y 360 -defaultsOSRD
+preplace inst request_mgr_core -pg 1 -lvl 2 -x 450 -y 170 -defaultsOSRD
+preplace inst ch1_data_response_fifo -pg 1 -lvl 1 -x 160 -y 80 -defaultsOSRD
+preplace netloc REQ_ID_IN_1 1 0 2 NJ 200 NJ
+preplace netloc REQ_ID_VALID_1 1 0 2 NJ 220 NJ
+preplace netloc qsfp_data_user_clk_out 1 0 2 30 160 NJ
+preplace netloc request_mgr_core_READY_FOR_REQ 1 2 1 NJ 190
+preplace netloc src_arst_1 1 0 2 20 180 NJ
+preplace netloc request_manager_AXIS_TX 1 2 1 NJ 170
+preplace netloc request_mgr_core_AXIS_RBF 1 0 3 40 280 NJ 280 620
+preplace netloc row_buffer_fifo_M_AXIS 1 1 1 280 140n
+preplace netloc Conn1 1 0 1 NJ 60
+preplace netloc ch1_data_response_fifo_M_AXIS 1 1 1 280 80n
+levelinfo -pg 1 0 160 450 640
+pagesize -pg 1 -db -bbox -sgen -170 0 820 440
+"
+}
+0

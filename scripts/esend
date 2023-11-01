@@ -1,0 +1,54 @@
+# Ensure that the user supplied a packet count    
+if [ -z "$1" ]; then
+    echo "Missing packet count"
+    exit 1
+fi
+
+# Which QSFP port?  
+port=$2
+if [ -z "$port" ]; then
+    port=both
+fi
+
+start_bits=0 
+if [ $port == 0 ]; then
+    start_bits=1 
+fi
+if [ $port == 1 ]; then
+    start_bits=2
+fi
+if [ $port == both ]; then
+    start_bits=3
+fi
+
+
+
+
+# Ensure that the QSFP port identifier is valid
+if [ $start_bits == 0 ]; then
+    echo "port must be 0, 1, or 'both'"
+    exit 1
+fi
+
+
+# Fetch the upper 32-bits of the row count
+upper32=$(($1 >> 32))
+
+# Fetch the lower 32-bits of the row count
+lower32=$(($1 & 0xFFFFFFFF))
+
+if [ $port == 0 ] || [ $port == both ]; then
+    pcireg 0x1000 $upper32
+    pcireg 0x1004 $lower32
+fi
+
+
+if [ $port == 1 ] || [ $port == both ]; then
+    pcireg 0x1008 $upper32
+    pcireg 0x100c $lower32
+fi
+
+
+# Start generating ethernet packets
+pcireg 0x1010 $start_bits
+

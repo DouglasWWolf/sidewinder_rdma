@@ -1,0 +1,48 @@
+{
+   "ActiveEmotionalView":"No Loops",
+   "Default View_ScaleFactor":"1.0",
+   "Default View_TopLeft":"-439,-213",
+   "DisplayTieOff":"1",
+   "ExpandedHierarchyInLayout":"",
+   "No Loops_ExpandedHierarchyInLayout":"",
+   "No Loops_Layout":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
+#  -string -flagsOSRD
+preplace port AXIS_RX -pg 1 -lvl 0 -x 0 -y 60 -defaultsOSRD
+preplace port AXIS_TX -pg 1 -lvl 3 -x 520 -y 80 -defaultsOSRD
+preplace port port-id_clk -pg 1 -lvl 0 -x 0 -y 80 -defaultsOSRD
+preplace port port-id_resetn -pg 1 -lvl 0 -x 0 -y 100 -defaultsOSRD
+preplace inst udp_ila -pg 1 -lvl 2 -x 400 -y 140 -defaultsOSRD -pinDir SLOT_0_AXIS left -pinY SLOT_0_AXIS 0L -pinDir clk left -pinY clk 20L -pinDir resetn left -pinY resetn 40L
+preplace inst axis_to_udp_0 -pg 1 -lvl 1 -x 170 -y 60 -defaultsOSRD -pinDir AXIS_PD left -pinY AXIS_PD 0L -pinDir AXIS_TX right -pinY AXIS_TX 20R -pinDir clk left -pinY clk 20L -pinDir resetn left -pinY resetn 40L
+preplace netloc clk_1 1 0 2 40 160 NJ
+preplace netloc resetn_1 1 0 2 20 180 NJ
+preplace netloc eth2udp_0_AXIS_TX 1 1 2 300 80 NJ
+preplace netloc AXIS_RX_1 1 0 1 NJ 60
+levelinfo -pg 1 0 170 400 520
+pagesize -pg 1 -db -bbox -sgen -110 0 630 240
+",
+   "No Loops_ScaleFactor":"1.0",
+   "No Loops_TopLeft":"-489,-205",
+   "guistr":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
+#  -string -flagsOSRD
+preplace port AXIS_RX -pg 1 -lvl 0 -x 0 -y 70 -defaultsOSRD
+preplace port AXIS_TX -pg 1 -lvl 5 -x 1100 -y 30 -defaultsOSRD
+preplace port port-id_clk -pg 1 -lvl 0 -x 0 -y 90 -defaultsOSRD
+preplace port port-id_resetn -pg 1 -lvl 0 -x 0 -y 110 -defaultsOSRD
+preplace inst packet_data_fifo -pg 1 -lvl 2 -x 440 -y 240 -defaultsOSRD
+preplace inst packet_size_fifo -pg 1 -lvl 2 -x 440 -y 100 -defaultsOSRD
+preplace inst udp_ila -pg 1 -lvl 3 -x 690 -y 130 -defaultsOSRD
+preplace inst measure_pkt_size -pg 1 -lvl 1 -x 160 -y 90 -defaultsOSRD
+preplace inst eth2udp -pg 1 -lvl 4 -x 940 -y 250 -defaultsOSRD
+preplace netloc clk_1 1 0 4 20 10 300 20 570 20 790
+preplace netloc resetn_1 1 0 4 20 170 310 320 590 280 790
+preplace netloc Conn1 1 0 1 N 70
+preplace netloc data_fifo_M_AXIS 1 2 1 580J 110n
+preplace netloc eth2udp_0_AXIS_TX 1 2 3 590 30 N 30 1060
+preplace netloc measure_pkt_size_AXIS_LEN 1 1 1 N 80
+preplace netloc measure_pkt_size_AXIS_TX 1 1 1 290 100n
+preplace netloc packet_size_fifo_M_AXIS 1 2 1 560J 90n
+levelinfo -pg 1 0 160 440 690 940 1100
+pagesize -pg 1 -db -bbox -sgen -100 0 1200 340
+"
+}
+0

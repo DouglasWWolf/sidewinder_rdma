@@ -1,0 +1,32 @@
+{
+   "ActiveEmotionalView":"Default View",
+   "Default View_ScaleFactor":"1.0",
+   "Default View_TopLeft":"-476,-233",
+   "DisplayTieOff":"1",
+   "ExpandedHierarchyInLayout":"",
+   "guistr":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
+#  -string -flagsOSRD
+preplace port ddr4 -pg 1 -lvl 3 -x 750 -y 60 -defaultsOSRD
+preplace port ddr4_refclk -pg 1 -lvl 0 -x 0 -y 80 -defaultsOSRD
+preplace port C0_DDR4_S_AXI_CTRL -pg 1 -lvl 0 -x 0 -y 100 -defaultsOSRD
+preplace port C0_DDR4_S_AXI -pg 1 -lvl 0 -x 0 -y 120 -defaultsOSRD
+preplace port port-id_led_ddr_cal_done -pg 1 -lvl 3 -x 750 -y 80 -defaultsOSRD
+preplace port port-id_ddr4_ui_clk -pg 1 -lvl 3 -x 750 -y 140 -defaultsOSRD
+preplace port port-id_sys_rst -pg 1 -lvl 0 -x 0 -y 240 -defaultsOSRD
+preplace portBus ddr4_ui_resetn -pg 1 -lvl 3 -x 750 -y 240 -defaultsOSRD
+preplace inst ddr4_ram -pg 1 -lvl 2 -x 530 -y 120 -defaultsOSRD
+preplace inst ddr4_reset_inverter -pg 1 -lvl 1 -x 170 -y 180 -defaultsOSRD
+preplace netloc ddr4_ram_c0_ddr4_ui_clk 1 2 1 NJ 140
+preplace netloc ddr4_ram_c0_ddr4_ui_clk_sync_rst 1 0 3 20 250 NJ 250 730
+preplace netloc ddr4_ram_c0_init_calib_complete 1 2 1 NJ 80
+preplace netloc ddr4_reset_inverter_Res 1 1 2 330 240 NJ
+preplace netloc sys_rst_1 1 0 2 NJ 240 320J
+preplace netloc Conn1 1 2 1 NJ 60
+preplace netloc Conn2 1 0 2 NJ 80 NJ
+preplace netloc Conn3 1 0 2 NJ 100 NJ
+preplace netloc Conn4 1 0 2 NJ 120 NJ
+levelinfo -pg 1 0 170 530 750
+pagesize -pg 1 -db -bbox -sgen -210 0 940 260
+"
+}
+
