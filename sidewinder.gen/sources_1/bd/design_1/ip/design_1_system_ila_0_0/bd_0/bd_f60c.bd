@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0x1AEE52D3ABA42250",
+      "boundary_crc": "0xC3B1A3285A19335",
       "design_src": "SBD",
       "device": "xczu19eg-ffvc1760-2-i",
       "name": "bd_f60c",
@@ -30,7 +30,7 @@
             "value_src": "default"
           },
           "HAS_TKEEP": {
-            "value": "0",
+            "value": "1",
             "value_src": "default"
           },
           "HAS_TLAST": {
@@ -218,7 +218,7 @@
             "value": "Native"
           },
           "C_NUM_OF_PROBES": {
-            "value": "9"
+            "value": "10"
           },
           "C_PROBE0_TYPE": {
             "value": "0"
@@ -230,7 +230,7 @@
             "value": "0"
           },
           "C_PROBE1_WIDTH": {
-            "value": "1"
+            "value": "64"
           },
           "C_PROBE2_TYPE": {
             "value": "0"
@@ -248,19 +248,19 @@
             "value": "0"
           },
           "C_PROBE4_WIDTH": {
-            "value": "512"
+            "value": "1"
           },
           "C_PROBE5_TYPE": {
             "value": "0"
           },
           "C_PROBE5_WIDTH": {
-            "value": "64"
+            "value": "512"
           },
           "C_PROBE6_TYPE": {
             "value": "0"
           },
           "C_PROBE6_WIDTH": {
-            "value": "1"
+            "value": "64"
           },
           "C_PROBE7_TYPE": {
             "value": "0"
@@ -272,6 +272,12 @@
             "value": "0"
           },
           "C_PROBE8_WIDTH": {
+            "value": "1"
+          },
+          "C_PROBE9_TYPE": {
+            "value": "0"
+          },
+          "C_PROBE9_WIDTH": {
             "value": "1"
           },
           "C_TIME_TAG_WIDTH": {
@@ -319,7 +325,7 @@
             "value": "AXI4S"
           },
           "C_SLOT_0_HAS_TKEEP": {
-            "value": "0"
+            "value": "1"
           },
           "C_SLOT_0_HAS_TREADY": {
             "value": "1"
@@ -388,52 +394,58 @@
           "ila_lib/probe0"
         ]
       },
+      "net_slot_0_axis_tkeep": {
+        "ports": [
+          "g_inst/m_slot_0_axis_tkeep",
+          "ila_lib/probe1"
+        ]
+      },
       "net_slot_0_axis_tlast": {
         "ports": [
           "g_inst/m_slot_0_axis_tlast",
-          "ila_lib/probe3"
+          "ila_lib/probe4"
         ]
       },
       "net_slot_0_axis_tready": {
         "ports": [
           "g_inst/m_slot_0_axis_tready",
-          "ila_lib/probe2"
+          "ila_lib/probe3"
         ]
       },
       "net_slot_0_axis_tvalid": {
         "ports": [
           "g_inst/m_slot_0_axis_tvalid",
-          "ila_lib/probe1"
+          "ila_lib/probe2"
         ]
       },
       "net_slot_1_axis_tdata": {
         "ports": [
           "g_inst/m_slot_1_axis_tdata",
-          "ila_lib/probe4"
+          "ila_lib/probe5"
         ]
       },
       "net_slot_1_axis_tkeep": {
         "ports": [
           "g_inst/m_slot_1_axis_tkeep",
-          "ila_lib/probe5"
+          "ila_lib/probe6"
         ]
       },
       "net_slot_1_axis_tlast": {
         "ports": [
           "g_inst/m_slot_1_axis_tlast",
-          "ila_lib/probe8"
+          "ila_lib/probe9"
         ]
       },
       "net_slot_1_axis_tready": {
         "ports": [
           "g_inst/m_slot_1_axis_tready",
-          "ila_lib/probe7"
+          "ila_lib/probe8"
         ]
       },
       "net_slot_1_axis_tvalid": {
         "ports": [
           "g_inst/m_slot_1_axis_tvalid",
-          "ila_lib/probe6"
+          "ila_lib/probe7"
         ]
       },
       "resetn_1": {

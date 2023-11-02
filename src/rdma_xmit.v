@@ -94,11 +94,7 @@ module rdma_xmit #
 ) 
 (
     input clk, resetn,
-
-    output [9*8-1:0] DBG_frhout_tdata,
-    output           DBG_frhout_tvalid,
-    output           DBG_frhout_tready,
-
+    
    //=================  This is the main AXI4-slave interface  ================
     
     // "Specify write address"              -- Master --    -- Slave --
@@ -654,9 +650,5 @@ rdma_hdr_fifo
    .injectsbiterr_axis()
 );
 //====================================================================================
-
-assign DBG_frhout_tdata  = frhout_tdata ;
-assign DBG_frhout_tvalid = frhout_tvalid;
-assign DBG_frhout_tready = frhout_tready;
 
 endmodule

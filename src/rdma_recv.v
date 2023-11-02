@@ -28,9 +28,6 @@ module rdma_recv #
 (
     input wire  clk, resetn,
 
-    output[DATA_WBITS-1:0] DBG_TDATA,
-    output[1:0]            DBG_ism_state,
-
     //=================  This is the main AXI4-master interface  ================
 
     // "Specify write address"              -- Master --    -- Slave --
@@ -226,8 +223,5 @@ always @(posedge clk) begin
             end
     endcase
 end
-
-assign DBG_TDATA     = AXIS_RDMA_TDATA_swapped;
-assign DBG_ism_state = ism_state;
 
 endmodule

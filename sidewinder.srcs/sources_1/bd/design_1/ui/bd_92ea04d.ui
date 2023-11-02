@@ -32,9 +32,9 @@ preplace netloc eth_reset_mgr_0_rx_enable 1 1 1 N 290
 preplace netloc eth_reset_mgr_0_tx_enable 1 1 1 N 230
 preplace netloc eth_reset_mgr_0_tx_send_rfi 1 1 1 N 250
 preplace netloc ethernet_gt_txusrclk2 1 1 1 300 110n
-preplace netloc ethernet_stat_rx_aligned 1 1 2 280J 30 750
+preplace netloc ethernet_stat_rx_aligned 1 1 2 280J 30 730
 preplace netloc ethernet_usr_rx_reset 1 2 1 NJ 260
-preplace netloc qsfp0_ethernet_gt_rxusrclk2 1 2 2 750 320 NJ
+preplace netloc qsfp0_ethernet_gt_rxusrclk2 1 2 2 730 320 NJ
 preplace netloc reset_in_1 1 0 2 20 350 280
 preplace netloc rx_reset_inverter_Res 1 3 1 NJ 260
 preplace netloc Conn7 1 2 2 NJ 90 NJ
