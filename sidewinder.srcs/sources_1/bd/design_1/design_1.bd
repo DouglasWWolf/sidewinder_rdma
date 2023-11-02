@@ -2489,10 +2489,13 @@
             "inst_hier_path": "rdma/rdma_ila",
             "parameters": {
               "C_MON_TYPE": {
-                "value": "INTERFACE"
+                "value": "MIX"
               },
               "C_NUM_MONITOR_SLOTS": {
                 "value": "3"
+              },
+              "C_NUM_OF_PROBES": {
+                "value": "5"
               },
               "C_SLOT": {
                 "value": "2"
@@ -2939,6 +2942,16 @@
                     "value_src": "constant"
                   }
                 }
+              },
+              "DBG_TDATA": {
+                "direction": "O",
+                "left": "511",
+                "right": "0"
+              },
+              "DBG_ism_state": {
+                "direction": "O",
+                "left": "1",
+                "right": "0"
               }
             },
             "addressing": {
@@ -3023,6 +3036,61 @@
                   "TREADY": {
                     "physical_name": "AXIS_TX_TREADY",
                     "direction": "I"
+                  }
+                }
+              },
+              "DBG_frhout": {
+                "mode": "Master",
+                "vlnv_bus_definition": "xilinx.com:interface:axis:1.0",
+                "vlnv": "xilinx.com:interface:axis_rtl:1.0",
+                "parameters": {
+                  "TDATA_NUM_BYTES": {
+                    "value": "9",
+                    "value_src": "constant"
+                  },
+                  "TDEST_WIDTH": {
+                    "value": "0",
+                    "value_src": "constant"
+                  },
+                  "TID_WIDTH": {
+                    "value": "0",
+                    "value_src": "constant"
+                  },
+                  "TUSER_WIDTH": {
+                    "value": "0",
+                    "value_src": "constant"
+                  },
+                  "HAS_TREADY": {
+                    "value": "1",
+                    "value_src": "constant"
+                  },
+                  "HAS_TSTRB": {
+                    "value": "0",
+                    "value_src": "constant"
+                  },
+                  "HAS_TKEEP": {
+                    "value": "0",
+                    "value_src": "constant"
+                  },
+                  "HAS_TLAST": {
+                    "value": "0",
+                    "value_src": "constant"
+                  }
+                },
+                "port_maps": {
+                  "TDATA": {
+                    "physical_name": "DBG_frhout_tdata",
+                    "direction": "O",
+                    "left": "71",
+                    "right": "0"
+                  },
+                  "TVALID": {
+                    "physical_name": "DBG_frhout_tvalid",
+                    "direction": "O"
+                  },
+                  "TREADY": {
+                    "physical_name": "DBG_frhout_tready",
+                    "direction": "O"
                   }
                 }
               },
@@ -3310,7 +3378,7 @@
                 "direction": "I",
                 "parameters": {
                   "ASSOCIATED_BUSIF": {
-                    "value": "AXIS_TX:S_AXI",
+                    "value": "AXIS_TX:DBG_frhout:S_AXI",
                     "value_src": "constant"
                   },
                   "ASSOCIATED_RESET": {
@@ -3368,6 +3436,36 @@
               "rdma_ila/clk",
               "rdma_recv/clk",
               "rdma_xmit/clk"
+            ]
+          },
+          "rdma_recv_DBG_TDATA": {
+            "ports": [
+              "rdma_recv/DBG_TDATA",
+              "rdma_ila/probe0"
+            ]
+          },
+          "rdma_recv_DBG_ism_state": {
+            "ports": [
+              "rdma_recv/DBG_ism_state",
+              "rdma_ila/probe1"
+            ]
+          },
+          "rdma_xmit_DBG_frhout_tdata": {
+            "ports": [
+              "rdma_xmit/DBG_frhout_tdata",
+              "rdma_ila/probe2"
+            ]
+          },
+          "rdma_xmit_DBG_frhout_tready": {
+            "ports": [
+              "rdma_xmit/DBG_frhout_tready",
+              "rdma_ila/probe4"
+            ]
+          },
+          "rdma_xmit_DBG_frhout_tvalid": {
+            "ports": [
+              "rdma_xmit/DBG_frhout_tvalid",
+              "rdma_ila/probe3"
             ]
           },
           "resetn_1": {
@@ -3478,6 +3576,10 @@
                 "value": "AXI4",
                 "value_src": "constant"
               },
+              "FREQ_HZ": {
+                "value": "250000000",
+                "value_src": "user_prop"
+              },
               "ID_WIDTH": {
                 "value": "4",
                 "value_src": "constant"
@@ -3561,6 +3663,10 @@
               "MAX_BURST_LENGTH": {
                 "value": "256",
                 "value_src": "auto"
+              },
+              "CLK_DOMAIN": {
+                "value": "design_1_xdma_0_0_axi_aclk",
+                "value_src": "default_prop"
               }
             },
             "address_space_ref": "M_AXI",
@@ -3767,6 +3873,10 @@
                 "value": "AXI4LITE",
                 "value_src": "constant"
               },
+              "FREQ_HZ": {
+                "value": "250000000",
+                "value_src": "user_prop"
+              },
               "ID_WIDTH": {
                 "value": "0",
                 "value_src": "constant"
@@ -3850,6 +3960,18 @@
               "MAX_BURST_LENGTH": {
                 "value": "1",
                 "value_src": "auto"
+              },
+              "CLK_DOMAIN": {
+                "value": "design_1_xdma_0_0_axi_aclk",
+                "value_src": "default_prop"
+              },
+              "RUSER_BITS_PER_BYTE": {
+                "value": "0",
+                "value_src": "user_prop"
+              },
+              "WUSER_BITS_PER_BYTE": {
+                "value": "0",
+                "value_src": "user_prop"
               }
             },
             "port_maps": {
@@ -3962,6 +4084,14 @@
               "ASSOCIATED_RESET": {
                 "value": "resetn",
                 "value_src": "constant"
+              },
+              "FREQ_HZ": {
+                "value": "250000000",
+                "value_src": "user_prop"
+              },
+              "CLK_DOMAIN": {
+                "value": "design_1_xdma_0_0_axi_aclk",
+                "value_src": "default_prop"
               }
             }
           },

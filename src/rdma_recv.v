@@ -21,17 +21,20 @@
 
 module rdma_recv #
 (
-    parameter integer AXI_DATA_WIDTH = 512,
-    parameter integer AXI_ADDR_WIDTH = 64,
-    parameter integer RDMA_HDR_LEN = (AXI_ADDR_WIDTH + 8)
+    parameter integer DATA_WBITS = 512,
+    parameter integer DATA_WBYTS = (DATA_WBITS / 8),
+    parameter integer ADDR_WBITS = 64
 )
 (
     input wire  clk, resetn,
 
+    output[DATA_WBITS-1:0] DBG_TDATA,
+    output[1:0]            DBG_ism_state,
+
     //=================  This is the main AXI4-master interface  ================
 
     // "Specify write address"              -- Master --    -- Slave --
-    output reg[AXI_ADDR_WIDTH-1:0]           M_AXI_AWADDR,
+    output reg[ADDR_WBITS-1:0]               M_AXI_AWADDR,
     output reg                               M_AXI_AWVALID,
     output reg[7:0]                          M_AXI_AWLEN,
     output[2:0]                              M_AXI_AWSIZE,
@@ -45,10 +48,10 @@ module rdma_recv #
     input                                                   M_AXI_AWREADY,
 
     // "Write Data"                         -- Master --    -- Slave --
-    output[AXI_DATA_WIDTH-1:0]               M_AXI_WDATA,
-    output                                   M_AXI_WVALID,
-    output[(AXI_DATA_WIDTH/8)-1:0]           M_AXI_WSTRB,
-    output                                   M_AXI_WLAST,
+    output[DATA_WBITS-1:0]                  M_AXI_WDATA,
+    output[DATA_WBYTS-1:0]                  M_AXI_WSTRB,
+    output                                  M_AXI_WVALID,
+    output                                  M_AXI_WLAST,
     input                                                   M_AXI_WREADY,
 
     // "Send Write Response"                -- Master --    -- Slave --
@@ -57,7 +60,7 @@ module rdma_recv #
     output                                  M_AXI_BREADY,
 
     // "Specify read address"               -- Master --    -- Slave --
-    output[AXI_ADDR_WIDTH-1:0]              M_AXI_ARADDR,
+    output[ADDR_WBITS-1:0]                  M_AXI_ARADDR,
     output                                  M_AXI_ARVALID,
     output[2:0]                             M_AXI_ARPROT,
     output                                  M_AXI_ARLOCK,
@@ -69,10 +72,10 @@ module rdma_recv #
     input                                                   M_AXI_ARREADY,
 
     // "Read data back to master"           -- Master --    -- Slave --
-    input[AXI_DATA_WIDTH-1:0]                              M_AXI_RDATA,
-    input                                                  M_AXI_RVALID,
-    input[1:0]                                             M_AXI_RRESP,
-    input                                                  M_AXI_RLAST,
+    input[DATA_WBITS-1:0]                                   M_AXI_RDATA,
+    input                                                   M_AXI_RVALID,
+    input[1:0]                                              M_AXI_RRESP,
+    input                                                   M_AXI_RLAST,
     output                                  M_AXI_RREADY,
     //==========================================================================
 
@@ -80,14 +83,16 @@ module rdma_recv #
     //==========================================================================
     //                     AXI Stream for incoming RDMA packets
     //==========================================================================
-    input[AXI_DATA_WIDTH  -1:0] AXIS_RDMA_TDATA,
-    input[AXI_DATA_WIDTH/8-1:0] AXIS_RDMA_TKEEP,
-    input                       AXIS_RDMA_TVALID,
-    input                       AXIS_RDMA_TLAST,
-    output                      AXIS_RDMA_TREADY
+    input[DATA_WBITS-1:0] AXIS_RDMA_TDATA,
+    input[DATA_WBYTS-1:0] AXIS_RDMA_TKEEP,
+    input                 AXIS_RDMA_TVALID,
+    input                 AXIS_RDMA_TLAST,
+    output                AXIS_RDMA_TREADY
     //==========================================================================
 
 );
+
+
 
 // The state of the input state-machine
 reg[1:0] ism_state;
@@ -103,7 +108,7 @@ assign M_AXI_BREADY = 1;
 
 // Set up constant fields in the AW channel
 assign M_AXI_AWID    = 0;
-assign M_AXI_AWSIZE  = $clog2(AXI_DATA_WIDTH / 8);
+assign M_AXI_AWSIZE  = $clog2(DATA_WBYTS);
 assign M_AXI_AWBURST = 1;       /* Burst type = Increment */
 assign M_AXI_AWLOCK  = 0;       /* Not locked             */
 assign M_AXI_AWCACHE = 0;       /* No caching             */
@@ -124,16 +129,58 @@ assign AXIS_RDMA_TREADY = (ism_state == ISM_WAIT_FOR_HDR) || (ism_state == ISM_X
 // This will tell us whether we've seen a handshake on the W-channel of M_AXI
 wire aw_handshake = (M_AXI_AWVALID == 0) || (M_AXI_AWREADY == 1);
 
-// Create a byte-swapped version of AXIS_RDMA_TDATA
-wire[AXI_DATA_WIDTH-1:0] AXIS_RDMA_TDATA_swapped;
+// AXIS_RDMA_TDATA comes to us in little-endian order.  Create a byte-swapped version of it
+// so we can easily break out the fields of the header in big-endian
+wire[DATA_WBITS-1:0] AXIS_RDMA_TDATA_swapped;
 genvar i;
-for (i=0; i<AXI_DATA_WIDTH/8; i=i+1) begin
-    assign AXIS_RDMA_TDATA_swapped[i*8 +:8] = AXIS_RDMA_TDATA[(AXI_DATA_WIDTH/8-1-i)*8 +:8];
+for (i=0; i<DATA_WBYTS; i=i+1) begin
+    assign AXIS_RDMA_TDATA_swapped[i*8 +:8] = AXIS_RDMA_TDATA[(DATA_WBYTS-1-i)*8 +:8];
 end 
 
-// These are where these two fields live in the RDMA header
-wire target_addr = AXIS_RDMA_TDATA_swapped[42*8 +: 64];
-wire burst_len   = AXIS_RDMA_TDATA_swapped[50*8 +:  8];
+// These are the fields that comprise an RDMA packet header
+wire[ 6 *8-1:0] eth_dst_mac, eth_src_mac;
+wire[ 2 *8-1:0] eth_frame_type;
+wire[ 2 *8-1:0] ip4_ver_dsf, ip4_length, ip4_id, ip4_flags, ip4_ttl_prot, ip4_checksum;
+wire[ 2 *8-1:0] ip4_srcip_h, ip4_srcip_l, ip4_dstip_h, ip4_dstip_l;
+wire[ 2 *8-1:0] udp_src_port, udp_dst_port, udp_length, udp_checksum;
+wire[ 8 *8-1:0] target_addr;
+wire[ 1 *8-1:0] burst_len;
+wire[13 *8-1:0] reserved;
+
+// This is the 64-byte packet header for an RDMA packet
+assign
+{
+
+    // Ethernet header fields - 14 bytes
+    eth_dst_mac,
+    eth_src_mac,
+    eth_frame_type,
+
+    // IPv4 header fields - 20 bytes
+    ip4_ver_dsf,
+    ip4_length,
+    ip4_id,
+    ip4_flags,
+    ip4_ttl_prot,
+    ip4_checksum,
+    ip4_srcip_h,
+    ip4_srcip_l,
+    ip4_dstip_h,
+    ip4_dstip_l,
+
+    // UDP header fields - 8 bytes
+    udp_src_port,
+    udp_dst_port,
+    udp_length,
+    udp_checksum,
+    
+    // RDMA header fields - 22 bytes
+    target_addr,
+    burst_len,
+    reserved
+
+} = AXIS_RDMA_TDATA_swapped;
+
 
 always @(posedge clk) begin
     if (resetn == 0) begin
@@ -180,5 +227,7 @@ always @(posedge clk) begin
     endcase
 end
 
+assign DBG_TDATA     = AXIS_RDMA_TDATA_swapped;
+assign DBG_ism_state = ism_state;
 
 endmodule

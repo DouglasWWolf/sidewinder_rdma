@@ -95,6 +95,10 @@ module rdma_xmit #
 (
     input clk, resetn,
 
+    output [9*8-1:0] DBG_frhout_tdata,
+    output           DBG_frhout_tvalid,
+    output           DBG_frhout_tready,
+
    //=================  This is the main AXI4-slave interface  ================
     
     // "Specify write address"              -- Master --    -- Slave --
@@ -208,6 +212,9 @@ localparam[15:0] udp_src_port   = SRC_PORT;
 localparam[15:0] udp_dst_port   = DST_PORT;
 localparam[15:0] udp_checksum   = 0;
 
+// 13 bytes of reserved area in the RDMA header
+localparam[13*8-1:0] reserved   = 0;
+
 // Compute both the IPv4 packet length and UDP packet length
 wire[15:0]       ip4_length     = IP_HDR_LEN  + UDP_HDR_LEN + RDMA_HDR_LEN + fplout_tdata;
 wire[15:0]       udp_length     =               UDP_HDR_LEN + RDMA_HDR_LEN + fplout_tdata;
@@ -226,21 +233,18 @@ wire[31:0] ip4_cs32 = ip4_ver_dsf
 // Compute the 16-bit IPv4 checksum
 wire[15:0] ip4_checksum = ~(ip4_cs32[15:0] + ip4_cs32[31:16]);
 
-// This is the output bus of RDMA header fields FIFO
-reg [RDMA_DATA_BYTES*8-1:0] frhout_tdata_reg;
-wire[RDMA_DATA_BYTES*8-1:0] frhout_tdata;
-wire                     frhout_tvalid;
-reg                      frhout_tready;
+// Fields for the RDMA header
+wire[8 *8-1:0] target_addr; 
+wire[1 *8-1:0] burst_len;
 
-// The RDMA header is either in the FIFO data output, or has been stored in frhout_tdata_reg
-wire[RDMA_DATA_BYTES*8-1:0] rdma_hdr_fields = (frhout_tready == 1) ? frhout_tdata : frhout_tdata_reg;
+// This is the output bus of RDMA header fields FIFO
+reg [RDMA_DATA_BYTES*8-1:0] rdma_hdr_fields;
+wire[RDMA_DATA_BYTES*8-1:0] frhout_tdata;
+wire                        frhout_tvalid;
+reg                         frhout_tready;
 
 // Extract the target address and burst-length from the RDMA header fields
-wire[63:0] target_addr = rdma_hdr_fields[0*8 +: 64];
-wire[7:0 ] burst_len   = rdma_hdr_fields[8*8 +:  8];
-
-// The RDMA packet header includes 13 bytes of reserved space
-localparam[13*8-1:0] RDMA_RESERVED = 0;
+assign {burst_len, target_addr} = (frhout_tready & frhout_tvalid) ? frhout_tdata : rdma_hdr_fields;
 
 // This is the 64-byte packet header for an RDMA packet
 wire[STREAM_WBITS-1:0] pkt_header =
@@ -271,7 +275,7 @@ wire[STREAM_WBITS-1:0] pkt_header =
     // RDMA header fields - 22 bytes
     target_addr,
     burst_len,
-    RDMA_RESERVED
+    reserved
 };
 
 
@@ -321,7 +325,7 @@ assign fpdout_tready  = (fsm_state == 2 & AXIS_TX_TREADY);
 //
 //
 // Since logic outside of this routine buffers up the entire packet prior to presenting us with a packet-length on
-// the AXIS_LEN bus, we may assume that an incoming cycle of user data (on fpdout_tdata) will be available on every
+// the fplout bus, we may assume that an incoming cycle of user data (on fpdout_tdata) will be available on every
 // consecutive cycle after receiving a packet-length.
 //=====================================================================================================================
 
@@ -342,7 +346,7 @@ always @(posedge clk) begin
             end
 
 
-        // Here we're waiting for a packet-length to arrive on the AXIS_LEN bus.  While
+        // Here we're waiting for a packet-length to arrive on the fplout bus.  While
         // we're waiting, we will capture the first data-cycle of rdma-header FIFO
         1:  begin
 
@@ -351,22 +355,25 @@ always @(posedge clk) begin
                 // state of "frhout_tready" to determine whether target-address
                 // is sitting in rdma_hdr_fields or in frhout_tdata.
                 //
-                // The target address could arrive on the same data-cycle as the packet-length,
-                // or it could arrive earlier.
+                // The target address could arrive on the same data-cycle as the
+                // packet-length, or it could arrive earlier.
                 if (frhout_tready & frhout_tvalid) begin
-                    frhout_tdata_reg <= frhout_tdata;
-                    frhout_tready    <= 0;                    
+                    rdma_hdr_fields <= frhout_tdata;
+                    frhout_tready   <= 0;                     
                 end
 
 
-                // If a packet-length arrives, the packet header is immediately emitted, and
-                // we go to state 2 to wait for the packet to complete
+                // If a packet-length arrives, the RDMA packet header is immediately
+                // emitted, and we go to state 2 to wait for the packet to complete
                 if (fplout_tready & fplout_tvalid) fsm_state <= 2;
             end
 
 
         // When we receive the last data-cycle of the packet, go back to state 1
-        2:  if (fpdout_tvalid & fpdout_tready & fpdout_tlast) fsm_state <= 1;
+        2:  if (fpdout_tvalid & fpdout_tready & fpdout_tlast) begin
+                frhout_tready <= 1;
+                fsm_state     <= 1;
+            end
         
     endcase
 end
@@ -595,11 +602,11 @@ packet_length_fifo
 //====================================================================================
 xpm_fifo_axis #
 (
-   .FIFO_DEPTH(MAX_PACKET_COUNT),  // DECIMAL
-   .TDATA_WIDTH(RDMA_DATA_BYTES*8),   // DECIMAL
-   .FIFO_MEMORY_TYPE("auto"),      // String
-   .PACKET_FIFO("false"),          // String
-   .USE_ADV_FEATURES("0000")       // String
+   .FIFO_DEPTH(MAX_PACKET_COUNT),   // DECIMAL
+   .TDATA_WIDTH(RDMA_DATA_BYTES*8), // DECIMAL
+   .FIFO_MEMORY_TYPE("auto"),       // String
+   .PACKET_FIFO("false"),           // String
+   .USE_ADV_FEATURES("0000")        // String
 )
 rdma_hdr_fifo
 (
@@ -648,5 +655,8 @@ rdma_hdr_fifo
 );
 //====================================================================================
 
+assign DBG_frhout_tdata  = frhout_tdata ;
+assign DBG_frhout_tvalid = frhout_tvalid;
+assign DBG_frhout_tready = frhout_tready;
 
 endmodule
