@@ -13,9 +13,16 @@
 `define M_AXI_ADDR_WIDTH 64
 `define M_AXI_DATA_BYTES (`M_AXI_DATA_WIDTH/8)
 
-module data_generator
+module data_generator #
+(
+    parameter[63:0] RAM_ADDR = 64'h0000_0001_0000_0000,
+    parameter       RAM_SIZE = 256 * 1024
+)
 (
     input clk, resetn,
+
+    output[511:0] DBG_expected_rdata,
+    output        DBG_selftest_ok,
 
     //======================  An AXI Master Interface  =========================
 
@@ -64,10 +71,62 @@ module data_generator
     input                                              M_AXI_RVALID,
     input[1:0]                                         M_AXI_RRESP,
     input                                              M_AXI_RLAST,
-    output                             M_AXI_RREADY,
+    output reg                         M_AXI_RREADY,
     //==========================================================================
    
    
+
+    //======================  An AXI Master Interface  =========================
+
+    // "Specify write address"         -- Master --    -- Slave --
+    output reg[`M_AXI_ADDR_WIDTH-1:0]  M2_AXI_AWADDR,
+    output reg                         M2_AXI_AWVALID,
+    output    [2:0]                    M2_AXI_AWPROT,
+    output    [3:0]                    M2_AXI_AWID,
+    output reg[7:0]                    M2_AXI_AWLEN,
+    output    [2:0]                    M2_AXI_AWSIZE,
+    output    [1:0]                    M2_AXI_AWBURST,
+    output                             M2_AXI_AWLOCK,
+    output    [3:0]                    M2_AXI_AWCACHE,
+    output    [3:0]                    M2_AXI_AWQOS,
+    input                                              M2_AXI_AWREADY,
+
+
+    // "Write Data"                    -- Master --    -- Slave --
+    output    [`M_AXI_DATA_WIDTH-1:0]  M2_AXI_WDATA,
+    output reg                         M2_AXI_WVALID,
+    output reg[`M_AXI_DATA_BYTES-1:0]  M2_AXI_WSTRB,
+    output                             M2_AXI_WLAST,
+    input                                              M2_AXI_WREADY,
+
+
+    // "Send Write Response"           -- Master --    -- Slave --
+    input [1:0]                                        M2_AXI_BRESP,
+    input                                              M2_AXI_BVALID,
+    output                             M2_AXI_BREADY,
+
+    // "Specify read address"          -- Master --    -- Slave --
+    output reg[`M_AXI_ADDR_WIDTH-1:0]  M2_AXI_ARADDR,
+    output reg                         M2_AXI_ARVALID,
+    output[2:0]                        M2_AXI_ARPROT,
+    output                             M2_AXI_ARLOCK,
+    output[3:0]                        M2_AXI_ARID,
+    output[7:0]                        M2_AXI_ARLEN,
+    output[2:0]                        M2_AXI_ARSIZE,
+    output[1:0]                        M2_AXI_ARBURST,
+    output[3:0]                        M2_AXI_ARCACHE,
+    output[3:0]                        M2_AXI_ARQOS,
+    input                                              M2_AXI_ARREADY,
+
+    // "Read data back to master"      -- Master --    -- Slave --
+    input[`M_AXI_DATA_WIDTH-1:0]                       M2_AXI_RDATA,
+    input                                              M2_AXI_RVALID,
+    input[1:0]                                         M2_AXI_RRESP,
+    input                                              M2_AXI_RLAST,
+    output reg                         M2_AXI_RREADY,
+    //==========================================================================
+
+
     //================== This is an AXI4-Lite slave interface ==================
         
     // "Specify write address"              -- Master --    -- Slave --
@@ -141,14 +200,32 @@ localparam DECERR = 3;
 // (128 bytes is 32 32-bit registers)
 localparam ADDR_MASK = 7'h7F;
 
+// This is high if the Read Check State Machine finds no discrepancies
+reg selftest_ok;
+
 // When this strobes high, one or more data-bursts are emitted
-reg[1:0] start_mode;
+reg[2:0] start_mode;
+localparam SM_FILL     = 1;
+localparam SM_NARROW   = 2;
+localparam SM_READBACK = 3;
 
 // The geometry of a set of bursts
-reg[31:0] burst_count, beats_per_burst;
+reg[31:0] burst_count, block_size, beats_per_burst, initial_value, write_delay;
 
 // When sending a single, short beat, this is the number of data bytes in that beat
 reg[31:0] byte_count;
+
+// The state of the Read Check State Machine
+reg[3:0]  rcsm_state;  /* rcsm = (r)am (c)heck (s)tate (m)achine */
+
+// This determine whether the RCSM is idle
+wire rcsm_idle = (rcsm_state == 0 && start_mode != SM_READBACK);
+
+localparam REG_INITIAL_VALUE = 0;
+localparam REG_WRITE_DELAY   = 1;
+localparam REG_START_WRITE   = 2;
+localparam REG_READ_BACK     = 3;
+localparam REG_NARROW_WRITE  = 4;
 
 //==========================================================================
 // This state machine handles AXI4-Lite write requests
@@ -161,12 +238,13 @@ reg[31:0] byte_count;
 always @(posedge clk) begin
 
     start_mode <= 0;
-
+    
     // If we're in reset, initialize important registers
     if (resetn == 0) begin
         axi4_write_state <= 0;
-        beats_per_burst  <= 4;
-    
+        initial_value    <= 1;
+        write_delay      <= 0;
+
     // If we're not in reset, and a write-request has occured...        
     end else case (axi4_write_state)
         
@@ -178,25 +256,94 @@ always @(posedge clk) begin
                 // Convert the byte address into a register index
                 case ((ashi_waddr & ADDR_MASK) >> 2)
                 
-                    0:  begin
-                            burst_count <= ashi_wdata;
-                            start_mode  <= 1;
-                        end
+                    REG_INITIAL_VALUE:
+                        initial_value <= ashi_wdata;
 
-                    1:  beats_per_burst <= ashi_wdata;
+                    REG_WRITE_DELAY:
+                        write_delay <= ashi_wdata;
 
-                    2:  begin
+                    REG_START_WRITE:
+                        case (ashi_wdata)
+                            64:
+                                begin
+                                    burst_count     <= RAM_SIZE >> 6;
+                                    block_size      <= ashi_wdata;
+                                    beats_per_burst <= ashi_wdata >> 6;
+                                    start_mode      <= SM_FILL;
+                                end
+
+                            128:
+                                begin 
+                                    burst_count     <= RAM_SIZE >> 7;
+                                    block_size      <= ashi_wdata;                                    
+                                    beats_per_burst <= ashi_wdata >> 6;
+                                    start_mode      <= SM_FILL;                                    
+                                end
+
+                            256:
+                                begin
+                                    burst_count     <= RAM_SIZE >> 8;
+                                    block_size      <= ashi_wdata;
+                                    beats_per_burst <= ashi_wdata >> 6;
+                                    start_mode      <= SM_FILL;                                                                                                            
+                                end
+
+                            512:
+                                begin
+                                    burst_count     <= RAM_SIZE >> 9;
+                                    block_size      <= ashi_wdata;                                    
+                                    beats_per_burst <= ashi_wdata >> 6;
+                                    start_mode      <= SM_FILL;                                    
+                                end
+
+                            1024:
+                                begin
+                                    burst_count     <= RAM_SIZE >> 10;
+                                    block_size      <= ashi_wdata;                                    
+                                    beats_per_burst <= ashi_wdata >> 6;
+                                    start_mode      <= SM_FILL;                                    
+                                end
+
+                            2048:
+                                begin
+                                    burst_count     <= RAM_SIZE >> 11;
+                                    block_size      <= ashi_wdata;                                    
+                                    beats_per_burst <= ashi_wdata >> 6;
+                                    start_mode      <= SM_FILL;                                    
+                                end
+
+                            4096:
+                                begin
+                                    burst_count     <= RAM_SIZE >> 12;                                    
+                                    block_size      <= ashi_wdata;                                    
+                                    beats_per_burst <= ashi_wdata >> 6;
+                                    start_mode      <= SM_FILL;                                    
+                                end
+
+                            8192:
+                                begin
+                                    burst_count     <= RAM_SIZE >> 13;
+                                    block_size      <= ashi_wdata;                                    
+                                    beats_per_burst <= ashi_wdata >> 6;
+                                    start_mode      <= SM_FILL;                                    
+                                end
+                        endcase
+
+                    REG_NARROW_WRITE:
+                        begin
                             byte_count <= ashi_wdata;
-                            start_mode <= 2;
+                            start_mode <= SM_NARROW;
                         end
 
+                    REG_READ_BACK:
+                        start_mode <= SM_READBACK;
+        
                     // Writes to any other register are a decode-error
                     default: ashi_wresp <= DECERR;
                 endcase
             end
 
-        // In this state, we're just waiting for the FIFO reset counters 
-        // to both go back to zero
+        // This is just here as a place-holder for future modifications
         1:  if (axi4_write_state) axi4_write_state <= 0;
 
     endcase
@@ -226,9 +373,12 @@ always @(posedge clk) begin
         case ((ashi_raddr & ADDR_MASK) >> 2)
  
             // Allow a read from any valid register                
-            0:  ashi_rdata <= burst_count;
-            1:  ashi_rdata <= beats_per_burst;
-
+            REG_INITIAL_VALUE: ashi_rdata <= initial_value;
+            REG_WRITE_DELAY  : ashi_rdata <= write_delay;
+            REG_START_WRITE  : ashi_rdata <= block_size;
+            REG_NARROW_WRITE : ashi_rdata <= byte_count;
+            REG_READ_BACK    : ashi_rdata <= {selftest_ok, rcsm_idle};
+            
             // Reads of any other register are a decode-error
             default: ashi_rresp <= DECERR;
         endcase
@@ -240,65 +390,78 @@ end
 
 //==========================================================================
 // This state machine writes bursts of data on the AXI-Master interface
+//
+// Drives:
+//    The AW-channel of M_AXI
+//    the  W-channel of M_AXI
 //==========================================================================
-reg[5:0]  bsm_state;
-reg[15:0] data_word;
+reg[ 7:0] bsm_state;
+reg[31:0] data_word;
 reg[31:0] bursts_remaining;
-reg[7:0]  beats_remaining;
-reg       addr_handshake, data_handshake;
+reg[ 7:0] beats_remaining;
 //==========================================================================
 assign M_AXI_AWSIZE  = 6; // 6 = 2^6 (i.e., 64) bytes per beat
 assign M_AXI_AWBURST = 1;
-assign M_AXI_WLAST   = (beats_remaining == 0);
+assign M_AXI_WLAST   = (M_AXI_WVALID & (beats_remaining == 0));
 assign M_AXI_BREADY  = 1;
-assign M_AXI_WDATA   = {32{data_word}};
+assign M_AXI_WDATA   = {
+                        data_word+ 0, data_word+ 1, data_word+ 2, data_word+ 3,
+                        data_word+ 4, data_word+ 5, data_word+ 6, data_word+ 7,
+                        data_word+ 8, data_word+ 9, data_word+10, data_word+11,
+                        data_word+12, data_word+13, data_word+14, data_word+15
+                       };
+
+// After we raise M_AXI_AWVALID, we've seen a handshake on the AW-channel
+// if we've lowered M_AXI_AWVALID or if the slave has indidicated he's ready
+wire aw_handshake = (M_AXI_AWVALID == 0 || M_AXI_AWREADY == 1);
+
+// We use this for delays between AXI write transactions
+reg[31:0] delay_countdown;
 
 always @(posedge clk) begin
     if (resetn == 0) begin
         bsm_state     <= 0;
-        data_word     <= 1;
         M_AXI_AWVALID <= 0;
         M_AXI_WVALID  <= 0;
 
     end else case (bsm_state)
-        0:  if (start_mode == 1) begin
-                M_AXI_AWADDR     <= 64'h0000_0001_0000_0000 - 64;
+        0:  if (start_mode == SM_FILL) begin
+                data_word        <= initial_value;
+                M_AXI_AWADDR     <= RAM_ADDR;
+                M_AXI_AWLEN      <= beats_per_burst - 1;
+                M_AXI_WSTRB      <= -1;
                 bursts_remaining <= burst_count;
+                delay_countdown  <= 0;
                 bsm_state        <= 1;                                
             end
             
-            else if (start_mode == 2) begin
+            else if (start_mode == SM_NARROW) begin
                 bsm_state <= 10;
             end
 
-        1:  if (bursts_remaining) begin
+        1:  if (bursts_remaining == 0)
+                bsm_state        <= 0;
+            else if (delay_countdown)
+                delay_countdown  <= delay_countdown - 1;
+            else begin
                 bursts_remaining <= bursts_remaining - 1;
-                
-                M_AXI_AWADDR    <= M_AXI_AWADDR + 64;
-                M_AXI_AWLEN     <= beats_per_burst - 1;
-                M_AXI_AWVALID   <= 1;
-
-                M_AXI_WSTRB     <= -1;
-                M_AXI_WVALID    <= 1;
-
-                beats_remaining <= beats_per_burst - 1;
-                bsm_state       <= 2;
-            end else begin
-                bsm_state       <= 0;
+                beats_remaining  <= beats_per_burst - 1;
+                delay_countdown  <= write_delay;
+                M_AXI_AWVALID    <= 1;
+                M_AXI_WVALID     <= 1;
+                bsm_state        <= 2;
             end
 
         2:  begin
-                if (M_AXI_AWVALID & M_AXI_AWREADY) M_AXI_AWVALID <= 0;
+                if (aw_handshake) M_AXI_AWVALID <= 0;
                 
                 if (M_AXI_WVALID & M_AXI_WREADY) begin
-                    data_word <= data_word + 1;
+                    data_word <= data_word + 16;
 
                     if (M_AXI_WLAST) begin
                         M_AXI_WVALID  <= 0;
-                        if (M_AXI_AWVALID == 0 || M_AXI_AWREADY)
-                            bsm_state <= 1;
-                        else
-                            bsm_state <= 3;
+                        M_AXI_AWADDR  <= M_AXI_AWADDR + block_size;
+                        bsm_state     <= aw_handshake ? 1:3;
                     end
 
                     else beats_remaining <= beats_remaining - 1;
@@ -306,15 +469,15 @@ always @(posedge clk) begin
 
             end 
 
-        3:  if (M_AXI_AWVALID & M_AXI_AWREADY) begin
+        3:  if (aw_handshake) begin
                 M_AXI_AWVALID <= 0;
                 bsm_state     <= 1;
             end
 
         10: begin
-                data_word       <= 32'hBEEF;
+                data_word       <= 32'hDEADBEEF - 15;
                 beats_remaining <= 0;
-                M_AXI_AWADDR    <= 64'h11223344_AABBCCDD;
+                M_AXI_AWADDR    <= RAM_ADDR;
                 M_AXI_AWLEN     <= 0;
                 M_AXI_AWVALID   <= 1;
                 M_AXI_WSTRB     <= (1 << byte_count) - 1;
@@ -330,9 +493,108 @@ always @(posedge clk) begin
 
     endcase
 end
+//==========================================================================
 
 
-//========================================================================
+//==========================================================================
+// This state machine reads a block of RAM and confirms that its contents
+// are as expected
+//==========================================================================
+
+// When reading back the RAM, we're going to read it in blocks of this 
+// many bytes
+localparam READ_BLOCK_SIZE = 256;
+
+// Assign all of the AR-channel values that remain fixed
+assign M2_AXI_ARPROT  = 0;
+assign M2_AXI_ARLOCK  = 0;
+assign M2_AXI_ARID    = 0;
+assign M2_AXI_ARLEN   = (READ_BLOCK_SIZE/M_AXI_DATA_BYTES) - 1;
+assign M2_AXI_ARCACHE = 0;
+assign M2_AXI_ARQOS   = 0;
+assign M2_AXI_ARBURST = 1;
+assign M2_AXI_ARSIZE  = $clog2(M_AXI_DATA_BYTES);
+
+
+//==========================================================================
+// This state machine read the RAM and confirms that it contains expected
+// values.
+//
+// Drives:
+//    The AR-channel of M2_AXI
+//    the  R-channel of M2_AXI
+//    rcsm_state
+//    read_count
+//    expected_word (and therefore, expected_rdata)
+//    selftest_ok
+//==========================================================================
+
+reg[31:0] read_count;
+reg[31:0] expected_word;
+
+wire[511:0] expected_rdata;
+assign expected_rdata = {
+                            expected_word+ 0, expected_word+ 1, expected_word+ 2, expected_word+ 3,
+                            expected_word+ 4, expected_word+ 5, expected_word+ 6, expected_word+ 7,
+                            expected_word+ 8, expected_word+ 9, expected_word+10, expected_word+11,
+                            expected_word+12, expected_word+13, expected_word+14, expected_word+15
+                        };
+
+
+always @(posedge clk) begin
+    
+    // If we're in reset...
+    if (resetn == 0) begin
+        rcsm_state    <= 0;
+        M2_AXI_RREADY <= 0;
+        selftest_ok   <= 0;
+
+    end else case (rcsm_state)
+
+        0:  if (start_mode == SM_READBACK) begin
+                selftest_ok    <= 1;
+                read_count     <= RAM_SIZE / READ_BLOCK_SIZE;
+                M2_AXI_ARADDR  <= RAM_ADDR;
+                M2_AXI_ARVALID <= 1;
+                M2_AXI_RREADY  <= 0;
+                expected_word  <= initial_value;
+                rcsm_state     <= 1;
+            end
+
+        // Here we wait for the slave to accept our read-request on the AR channel
+        1:  if (M2_AXI_ARVALID & M2_AXI_ARREADY) begin
+                M2_AXI_ARVALID <= 0;
+                M2_AXI_RREADY  <= 1;
+                rcsm_state     <= 2;
+            end
+
+        // Handle data from RAM as it arrives...
+        2:  if (M2_AXI_RVALID & M2_AXI_RREADY) begin        // If a data-cycle has arrived in the R-channel...
+                
+                if (M2_AXI_RDATA != expected_rdata)         // If data-cycle we just read isn't what we expected...
+                    selftest_ok <= 0;                       //   the self-test just failed
+                
+                expected_word <= expected_word + 16;        // Compute the first 32-bit word of the next cycle
+                
+                if (M2_AXI_RLAST) begin                     // If this was the last data-beat of the burst...
+                    M2_AXI_RREADY  <= 0;                    //   We're no longer ready to recv data
+                    if (read_count == 1)                    //   If this was the last burst we want to read...
+                        rcsm_state <= 0;                    //     Go back to idle, we're done  
+                    else begin                              //   Otherwise...
+                        read_count     <= read_count - 1;   //     Keep track of how many bursts remain
+                        M2_AXI_ARADDR  <= M2_AXI_ARADDR + READ_BLOCK_SIZE;
+                        M2_AXI_ARVALID <= 1;                //     Indicate that the read-address is valid
+                        rcsm_state     <= 1;                //     Go wait for the slave to ack the read request
+                    end
+                end
+            end
+
+    endcase
+end
+//==========================================================================
+
+
+//==========================================================================
 // This connects us to an AXI4-Lite slave core
 //==========================================================================
 axi4_lite_slave axi_slave
@@ -384,5 +646,8 @@ axi4_lite_slave axi_slave
     .ASHI_RIDLE     (ashi_ridle)
 );
 //==========================================================================
+
+assign DBG_expected_rdata = expected_rdata;
+assign DBG_selftest_ok    = selftest_ok;
 
 endmodule

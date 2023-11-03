@@ -14,10 +14,10 @@ module axi_qsfp_status
     input clk, resetn,
 
     // Status signals, QSFP 0
-    input ss0_channel_up,
+    input ss0_channel_up, ss0_overrun, 
 
     // Status signals, QSFP 1
-    input ss1_channel_up,
+    input ss1_channel_up, ss1_overrun,
 
     //================== This is an AXI4-Lite slave interface ==================
         
@@ -86,17 +86,54 @@ module axi_qsfp_status
     // (128 bytes is 32 32-bit registers)
     localparam ADDR_MASK = 7'h7F;
 
+    // Latched versions of the overrun signals
+    reg ss0_overrun_latch, ss1_overrun_latch;
+
     // Stuff our status signals into a status word
     wire[31:0] status_word;
-    assign status_word[ 0] = ss0_channel_up;
-    assign status_word[16] = ss1_channel_up;
-    
 
+    // These are the bit positions in the status word
+    localparam BIT_SS0_UP      =  0;
+    localparam BIT_SS0_OVERRUN =  1;
+    localparam BIT_SS1_UP      = 16;
+    localparam BIT_SS1_OVERRUN = 17;
+
+    assign status_word[BIT_SS0_UP     ] = ss0_channel_up;
+    assign status_word[BIT_SS0_OVERRUN] = ss0_overrun_latch;
+    assign status_word[BIT_SS1_UP     ] = ss1_channel_up;
+    assign status_word[BIT_SS1_OVERRUN] = ss1_overrun_latch;
+    
     //==========================================================================
     // This state machine handles AXI write-requests
     //==========================================================================
     always @(posedge clk) begin
-        ashi_wresp <= SLVERR;
+        if (resetn == 0) begin
+            ss0_overrun_latch <= 0;
+            ss1_overrun_latch <= 0;
+        end else begin
+
+            // Latch the overrun signals
+            if (ss0_overrun) ss0_overrun_latch <= 1;
+            if (ss1_overrun) ss1_overrun_latch <= 1;
+
+            if (ashi_write) begin
+                
+                // Assume for the moment that the result will be OKAY
+                ashi_wresp <= OKAY;              
+            
+                // Convert the byte address into a register index
+                case ((ashi_waddr & ADDR_MASK) >> 2)
+                
+                    0:  begin
+                            if (ashi_wdata[BIT_SS0_OVERRUN]) ss0_overrun_latch <= ss0_overrun;
+                            if (ashi_wdata[BIT_SS1_OVERRUN]) ss1_overrun_latch <= ss1_overrun;
+                        end
+
+                    default: ashi_wresp <= DECERR;
+
+                endcase
+            end
+        end
     end
     //==========================================================================
 

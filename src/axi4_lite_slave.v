@@ -70,7 +70,7 @@ module axi4_lite_slave
     wire AR_HANDSHAKE = AXI_ARVALID & AXI_ARREADY;
     wire AW_HANDSHAKE = AXI_AWVALID & AXI_AWREADY;
 
-    // The main fields that we pass to the handlerwhen a read or write request comes in
+    // The main fields that we pass to the handler when a read or write request comes in
     reg[31:0] ashi_waddr, ashi_wdata, ashi_raddr;
 
     // Give the handler the write address, the write data, or the read address as soon 

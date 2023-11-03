@@ -3487,7 +3487,7 @@
       <spirit:modelParameter spirit:dataType="bitstring">
         <spirit:name>C_SEG_SIZE_ARRAY</spirit:name>
         <spirit:displayName>C_SEG_SIZE_ARRAY</spirit:displayName>
-        <spirit:value spirit:format="bitString" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_SEG_SIZE_ARRAY" spirit:bitStringLength="192">0x000000140000001400000008000000080000000800000008</spirit:value>
+        <spirit:value spirit:format="bitString" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_SEG_SIZE_ARRAY" spirit:bitStringLength="192">0x000000120000001400000008000000080000000800000008</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="bitstring">
         <spirit:name>C_SEG_SEP_ROUTE_ARRAY</spirit:name>
@@ -3969,7 +3969,7 @@
     <spirit:parameter>
       <spirit:name>SEG005_SIZE</spirit:name>
       <spirit:displayName>SEG005_SIZE</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.SEG005_SIZE">20</spirit:value>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.SEG005_SIZE">18</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>SEG005_SEP_ROUTE</spirit:name>

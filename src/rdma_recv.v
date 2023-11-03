@@ -112,7 +112,7 @@ assign M_AXI_AWCACHE = 0;       /* No caching             */
 assign M_AXI_AWPROT  = 1;       /* Privileged Access      */
 assign M_AXI_AWQOS   = 0;       /* No QoS                 */
 
-// In state 2, the W channel is wired directly to the AXIS_RDMA input stream
+// In state ISM_XFER_PACKET, the W channel is wired directly to the AXIS_RDMA input stream
 assign M_AXI_WDATA  = (ism_state == ISM_XFER_PACKET) ? AXIS_RDMA_TDATA : 0;
 assign M_AXI_WSTRB  = (ism_state == ISM_XFER_PACKET) ? AXIS_RDMA_TKEEP : 0;
 assign M_AXI_WLAST  = (ism_state == ISM_XFER_PACKET) ? AXIS_RDMA_TLAST : 0;
@@ -123,7 +123,7 @@ assign M_AXI_WVALID = (ism_state == ISM_XFER_PACKET) & AXIS_RDMA_TVALID;
 //  (2) When we're transferring the packet and the slave is ready to receive
 assign AXIS_RDMA_TREADY = (ism_state == ISM_WAIT_FOR_HDR) || (ism_state == ISM_XFER_PACKET && M_AXI_WREADY);
 
-// This will tell us whether we've seen a handshake on the W-channel of M_AXI
+// This will tell us whether we've seen a handshake on the AW-channel of M_AXI
 wire aw_handshake = (M_AXI_AWVALID == 0) || (M_AXI_AWREADY == 1);
 
 // AXIS_RDMA_TDATA comes to us in little-endian order.  Create a byte-swapped version of it
@@ -181,7 +181,7 @@ assign
 
 always @(posedge clk) begin
     if (resetn == 0) begin
-        ism_state  <= ISM_STARTING;
+        ism_state <= ISM_STARTING;
 
     end else case (ism_state)
 

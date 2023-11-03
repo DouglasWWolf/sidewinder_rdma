@@ -11,17 +11,17 @@ preplace port AXIS_RDMA -pg 1 -lvl 0 -x 0 -y 60 -defaultsOSRD
 preplace port M_AXI -pg 1 -lvl 2 -x 360 -y 100 -defaultsOSRD
 preplace port port-id_resetn -pg 1 -lvl 0 -x 0 -y 100 -defaultsOSRD
 preplace port port-id_clk -pg 1 -lvl 0 -x 0 -y 80 -defaultsOSRD
-preplace inst rdma_recv -pg 1 -lvl 1 -x 200 -y 60 -defaultsOSRD -pinDir AXIS_RDMA left -pinY AXIS_RDMA 0L -pinDir M_AXI right -pinY M_AXI 40R -pinDir clk left -pinY clk 20L -pinDir resetn left -pinY resetn 40L
 preplace inst rdma_ila -pg 1 -lvl 1 -x 200 -y 200 -defaultsOSRD -pinDir SLOT_0_AXIS left -pinY SLOT_0_AXIS 0L -pinDir SLOT_1_AXI right -pinY SLOT_1_AXI 0R -pinDir clk left -pinY clk 20L -pinDir resetn left -pinY resetn 40L
-preplace netloc resetn_1 1 0 1 20J 100n
+preplace inst rdma_recv -pg 1 -lvl 1 -x 200 -y 60 -defaultsOSRD -pinDir AXIS_RDMA left -pinY AXIS_RDMA 0L -pinDir M_AXI right -pinY M_AXI 40R -pinDir clk left -pinY clk 20L -pinDir resetn left -pinY resetn 40L
 preplace netloc clk_1 1 0 1 40J 80n
-preplace netloc Conn1 1 0 1 60J 60n
-preplace netloc Conn2 1 1 1 340 100n
+preplace netloc resetn_1 1 0 1 20J 100n
+preplace netloc AXIS_RDMA 1 0 1 60 60n
+preplace netloc M_AXI 1 1 1 340 100n
 levelinfo -pg 1 0 200 360
 pagesize -pg 1 -db -bbox -sgen -140 0 460 300
 ",
    "No Loops_ScaleFactor":"1.0",
-   "No Loops_TopLeft":"-579,-176",
+   "No Loops_TopLeft":"-503,-191",
    "guistr":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
 #  -string -flagsOSRD
 preplace port AXIS_RDMA -pg 1 -lvl 0 -x -50 -y 50 -defaultsOSRD
@@ -38,4 +38,4 @@ levelinfo -pg 1 -50 350 510
 pagesize -pg 1 -db -bbox -sgen -190 -230 610 290
 "
 }
-
+0
