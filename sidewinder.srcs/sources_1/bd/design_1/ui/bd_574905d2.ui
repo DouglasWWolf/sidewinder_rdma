@@ -1,7 +1,7 @@
 {
    "ActiveEmotionalView":"Default View",
    "Default View_ScaleFactor":"1.0",
-   "Default View_TopLeft":"-313,-58",
+   "Default View_TopLeft":"-388,-56",
    "DisplayTieOff":"1",
    "ExpandedHierarchyInLayout":"",
    "guistr":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
@@ -20,21 +20,21 @@ preplace inst eth_reset_inverter -pg 1 -lvl 1 -x 170 -y 480 -defaultsOSRD
 preplace inst overrun_1_cdc -pg 1 -lvl 2 -x 490 -y 240 -defaultsOSRD
 preplace inst axi_reset_inverter -pg 1 -lvl 1 -x 170 -y 60 -defaultsOSRD
 preplace inst axi_eth_status -pg 1 -lvl 3 -x 750 -y 180 -defaultsOSRD
-preplace netloc ss0_channel_up 1 0 3 NJ 160 330J 90 630
+preplace netloc axi_reset_inverter_Res 1 1 1 340 60n
+preplace netloc overrun_0_cdc_dest_pulse 1 2 1 620 200n
+preplace netloc overrun_1_cdc_dest_pulse 1 2 1 N 240
+preplace netloc qsfp_rx_clk_out_1 1 0 2 N 260 320
 preplace netloc qsfp_tx_clk_in_1 1 0 3 NJ 280 360 140 N
 preplace netloc qsfp_tx_resetn_in_1 1 0 3 20J 130 320 100 620
-preplace netloc ss1_channel_up 1 0 3 NJ 140 350J 110 610
-preplace netloc qsfp_rx_clk_out_1 1 0 2 N 260 320
-preplace netloc overrun_0_cdc_dest_pulse 1 2 1 620 200n
-preplace netloc src_rst_1 1 0 1 N 480
-preplace netloc src_pulse_1 1 0 2 N 420 N
 preplace netloc reset_inverter_Res 1 1 1 370 280n
-preplace netloc overrun_1_cdc_dest_pulse 1 2 1 N 240
-preplace netloc axi_reset_inverter_Res 1 1 1 340 60n
+preplace netloc src_pulse_1 1 0 2 N 420 N
 preplace netloc src_pulse_2 1 0 2 NJ 240 NJ
+preplace netloc src_rst_1 1 0 1 N 480
+preplace netloc ss0_channel_up 1 0 3 NJ 160 330J 90 630
+preplace netloc ss1_channel_up 1 0 3 NJ 140 350J 110 610
 preplace netloc Conn1 1 0 3 NJ 120 N 120 N
 levelinfo -pg 1 0 170 490 750 880
 pagesize -pg 1 -db -bbox -sgen -180 0 880 540
 "
 }
-
+0

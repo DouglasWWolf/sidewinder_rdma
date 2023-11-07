@@ -3411,7 +3411,7 @@
       <spirit:modelParameter spirit:dataType="long">
         <spirit:name>C_NUM_MSC</spirit:name>
         <spirit:displayName>C_NUM_MSC</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_NUM_MSC" spirit:minimum="1" spirit:maximum="256" spirit:rangeType="long">7</spirit:value>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_NUM_MSC" spirit:minimum="1" spirit:maximum="256" spirit:rangeType="long">8</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="long">
         <spirit:name>C_SINGLE_ISSUING</spirit:name>
@@ -3598,7 +3598,7 @@
     <spirit:parameter>
       <spirit:name>NUM_MSC</spirit:name>
       <spirit:displayName>NUM_MSC</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.NUM_MSC" spirit:order="26" spirit:minimum="1" spirit:maximum="256" spirit:rangeType="long">7</spirit:value>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.NUM_MSC" spirit:order="26" spirit:minimum="1" spirit:maximum="256" spirit:rangeType="long">8</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>READ_ACCEPTANCE</spirit:name>

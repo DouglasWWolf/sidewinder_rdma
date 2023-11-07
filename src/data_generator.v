@@ -21,8 +21,17 @@ module data_generator #
 (
     input clk, resetn,
 
-    output[511:0] DBG_expected_rdata,
-    output        DBG_selftest_ok,
+    output[ 2:0] DBG_start_mode,
+    output[ 7:0] DBG_bsm_state,
+    output[31:0] DBG_data_word,
+    output[31:0] DBG_bursts_remaining,
+    output[ 7:0] DBG_beats_remaining,
+    output[31:0] DBG_delay_countdown,
+
+
+    // These are useful for debugging when reading data back from RAM
+    output[`M_AXI_DATA_WIDTH-1:0] expected_rdata,
+    output reg                    selftest_ok,
 
     //======================  An AXI Master Interface  =========================
 
@@ -200,14 +209,12 @@ localparam DECERR = 3;
 // (128 bytes is 32 32-bit registers)
 localparam ADDR_MASK = 7'h7F;
 
-// This is high if the Read Check State Machine finds no discrepancies
-reg selftest_ok;
 
 // When this strobes high, one or more data-bursts are emitted
 reg[2:0] start_mode;
-localparam SM_FILL     = 1;
-localparam SM_NARROW   = 2;
-localparam SM_READBACK = 3;
+localparam SM_FILL      = 1;
+localparam SM_NARROW    = 2;
+localparam SM_READBACK  = 3;
 
 // The geometry of a set of bursts
 reg[31:0] burst_count, block_size, beats_per_burst, initial_value, write_delay;
@@ -266,7 +273,7 @@ always @(posedge clk) begin
                         case (ashi_wdata)
                             64:
                                 begin
-                                    burst_count     <= RAM_SIZE >> 6;
+                                    burst_count     <= RAM_SIZE / 64;
                                     block_size      <= ashi_wdata;
                                     beats_per_burst <= ashi_wdata >> 6;
                                     start_mode      <= SM_FILL;
@@ -274,7 +281,7 @@ always @(posedge clk) begin
 
                             128:
                                 begin 
-                                    burst_count     <= RAM_SIZE >> 7;
+                                    burst_count     <= RAM_SIZE / 128;
                                     block_size      <= ashi_wdata;                                    
                                     beats_per_burst <= ashi_wdata >> 6;
                                     start_mode      <= SM_FILL;                                    
@@ -282,7 +289,7 @@ always @(posedge clk) begin
 
                             256:
                                 begin
-                                    burst_count     <= RAM_SIZE >> 8;
+                                    burst_count     <= RAM_SIZE / 256;
                                     block_size      <= ashi_wdata;
                                     beats_per_burst <= ashi_wdata >> 6;
                                     start_mode      <= SM_FILL;                                                                                                            
@@ -290,7 +297,7 @@ always @(posedge clk) begin
 
                             512:
                                 begin
-                                    burst_count     <= RAM_SIZE >> 9;
+                                    burst_count     <= RAM_SIZE / 512;
                                     block_size      <= ashi_wdata;                                    
                                     beats_per_burst <= ashi_wdata >> 6;
                                     start_mode      <= SM_FILL;                                    
@@ -298,7 +305,7 @@ always @(posedge clk) begin
 
                             1024:
                                 begin
-                                    burst_count     <= RAM_SIZE >> 10;
+                                    burst_count     <= RAM_SIZE / 1024;
                                     block_size      <= ashi_wdata;                                    
                                     beats_per_burst <= ashi_wdata >> 6;
                                     start_mode      <= SM_FILL;                                    
@@ -306,7 +313,7 @@ always @(posedge clk) begin
 
                             2048:
                                 begin
-                                    burst_count     <= RAM_SIZE >> 11;
+                                    burst_count     <= RAM_SIZE / 2048;
                                     block_size      <= ashi_wdata;                                    
                                     beats_per_burst <= ashi_wdata >> 6;
                                     start_mode      <= SM_FILL;                                    
@@ -314,7 +321,7 @@ always @(posedge clk) begin
 
                             4096:
                                 begin
-                                    burst_count     <= RAM_SIZE >> 12;                                    
+                                    burst_count     <= RAM_SIZE / 4096;                                    
                                     block_size      <= ashi_wdata;                                    
                                     beats_per_burst <= ashi_wdata >> 6;
                                     start_mode      <= SM_FILL;                                    
@@ -322,7 +329,7 @@ always @(posedge clk) begin
 
                             8192:
                                 begin
-                                    burst_count     <= RAM_SIZE >> 13;
+                                    burst_count     <= RAM_SIZE / 8192;
                                     block_size      <= ashi_wdata;                                    
                                     beats_per_burst <= ashi_wdata >> 6;
                                     start_mode      <= SM_FILL;                                    
@@ -337,6 +344,7 @@ always @(posedge clk) begin
 
                     REG_READ_BACK:
                         start_mode <= SM_READBACK;
+
         
                     // Writes to any other register are a decode-error
                     default: ashi_wresp <= DECERR;
@@ -400,16 +408,18 @@ reg[31:0] data_word;
 reg[31:0] bursts_remaining;
 reg[ 7:0] beats_remaining;
 //==========================================================================
-assign M_AXI_AWSIZE  = 6; // 6 = 2^6 (i.e., 64) bytes per beat
+assign M_AXI_AWSIZE  = $clog2(M_AXI_DATA_BYTES);
 assign M_AXI_AWBURST = 1;
 assign M_AXI_WLAST   = (M_AXI_WVALID & (beats_remaining == 0));
 assign M_AXI_BREADY  = 1;
 assign M_AXI_WDATA   = {
-                        data_word+ 0, data_word+ 1, data_word+ 2, data_word+ 3,
-                        data_word+ 4, data_word+ 5, data_word+ 6, data_word+ 7,
-                        data_word+ 8, data_word+ 9, data_word+10, data_word+11,
-                        data_word+12, data_word+13, data_word+14, data_word+15
-                       };
+                        data_word+15, data_word+14, data_word+13, data_word+12,
+                        data_word+11, data_word+10, data_word+ 9, data_word+ 8,
+                        data_word+ 7, data_word+ 6, data_word+ 5, data_word+ 4,
+                        data_word+ 3, data_word+ 2, data_word+ 1, data_word+ 0
+                      };
+
+
 
 // After we raise M_AXI_AWVALID, we've seen a handshake on the AW-channel
 // if we've lowered M_AXI_AWVALID or if the slave has indidicated he's ready
@@ -532,12 +542,11 @@ assign M2_AXI_ARSIZE  = $clog2(M_AXI_DATA_BYTES);
 reg[31:0] read_count;
 reg[31:0] expected_word;
 
-wire[511:0] expected_rdata;
 assign expected_rdata = {
-                            expected_word+ 0, expected_word+ 1, expected_word+ 2, expected_word+ 3,
-                            expected_word+ 4, expected_word+ 5, expected_word+ 6, expected_word+ 7,
-                            expected_word+ 8, expected_word+ 9, expected_word+10, expected_word+11,
-                            expected_word+12, expected_word+13, expected_word+14, expected_word+15
+                            expected_word+15, expected_word+14, expected_word+13, expected_word+12,
+                            expected_word+11, expected_word+10, expected_word+ 9, expected_word+ 8,
+                            expected_word+ 7, expected_word+ 6, expected_word+ 5, expected_word+ 4,
+                            expected_word+ 3, expected_word+ 2, expected_word+ 1, expected_word+ 0
                         };
 
 
@@ -647,7 +656,12 @@ axi4_lite_slave axi_slave
 );
 //==========================================================================
 
-assign DBG_expected_rdata = expected_rdata;
-assign DBG_selftest_ok    = selftest_ok;
+assign DBG_start_mode       = start_mode;
+assign DBG_bsm_state        = bsm_state;
+assign DBG_data_word        = data_word;
+assign DBG_bursts_remaining = bursts_remaining;
+assign DBG_beats_remaining  = beats_remaining;
+assign DBG_delay_countdown  = delay_countdown;
+
 
 endmodule

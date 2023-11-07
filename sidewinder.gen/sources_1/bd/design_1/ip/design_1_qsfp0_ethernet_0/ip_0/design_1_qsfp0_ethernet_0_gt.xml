@@ -14,7 +14,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:07644329</spirit:value>
+            <spirit:value>9:c8806b7f</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -7897,7 +7897,7 @@
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
           <spirit:driver>
-            <spirit:defaultValue spirit:format="bitString" spirit:bitStringLength="4">0x0</spirit:defaultValue>
+            <spirit:defaultValue spirit:format="bitString" spirit:bitStringLength="4">0xF</spirit:defaultValue>
           </spirit:driver>
         </spirit:wire>
         <spirit:vendorExtensions>
@@ -15354,7 +15354,7 @@
       <spirit:name>INS_LOSS_NYQ</spirit:name>
       <spirit:displayName>Insertion loss at Nyquist (dB)</spirit:displayName>
       <spirit:description>Indicate the transmitter to receiver insertion loss at the Nyquist frequency, in dB</spirit:description>
-      <spirit:value spirit:format="float" spirit:resolve="user" spirit:id="PARAM_VALUE.INS_LOSS_NYQ" spirit:order="21" spirit:minimum="0">20</spirit:value>
+      <spirit:value spirit:format="float" spirit:resolve="user" spirit:id="PARAM_VALUE.INS_LOSS_NYQ" spirit:order="21" spirit:minimum="0">12</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>PCIE_CORECLK_FREQ</spirit:name>

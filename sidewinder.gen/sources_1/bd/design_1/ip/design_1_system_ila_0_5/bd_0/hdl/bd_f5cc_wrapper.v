@@ -51,6 +51,9 @@ module bd_f5cc_wrapper
     SLOT_1_AXI_wstrb,
     SLOT_1_AXI_wvalid,
     clk,
+    probe0,
+    probe1,
+    probe2,
     resetn);
   input [511:0]SLOT_0_AXIS_tdata;
   input [63:0]SLOT_0_AXIS_tkeep;
@@ -96,6 +99,9 @@ module bd_f5cc_wrapper
   input [63:0]SLOT_1_AXI_wstrb;
   input SLOT_1_AXI_wvalid;
   input clk;
+  input [7:0]probe0;
+  input [0:0]probe1;
+  input [0:0]probe2;
   input resetn;
 
   wire [511:0]SLOT_0_AXIS_tdata;
@@ -142,6 +148,9 @@ module bd_f5cc_wrapper
   wire [63:0]SLOT_1_AXI_wstrb;
   wire SLOT_1_AXI_wvalid;
   wire clk;
+  wire [7:0]probe0;
+  wire [0:0]probe1;
+  wire [0:0]probe2;
   wire resetn;
 
   bd_f5cc bd_f5cc_i
@@ -189,5 +198,8 @@ module bd_f5cc_wrapper
         .SLOT_1_AXI_wstrb(SLOT_1_AXI_wstrb),
         .SLOT_1_AXI_wvalid(SLOT_1_AXI_wvalid),
         .clk(clk),
+        .probe0(probe0),
+        .probe1(probe1),
+        .probe2(probe2),
         .resetn(resetn));
 endmodule

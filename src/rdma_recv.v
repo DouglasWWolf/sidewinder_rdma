@@ -21,19 +21,35 @@
 
 module rdma_recv #
 (
-    parameter integer DATA_WBITS = 512,
-    parameter integer DATA_WBYTS = (DATA_WBITS / 8),
-    parameter integer ADDR_WBITS = 64
+    parameter DATA_WBITS        = 512,
+    parameter DATA_WBYTS        = (DATA_WBITS / 8),
+    parameter ADDR_WBITS        = 64,
+    parameter RDMA_HDR_BYTES    = 9,
+    parameter PACKET_FIFO_DEPTH = 1024
 )
 (
     input wire  clk, resetn,
 
+    output[7:0] DBG_new_awlen,
+
+    //==========================================================================
+    //                     AXI Stream for incoming RDMA packets
+    //==========================================================================
+    input[DATA_WBITS-1:0] AXIS_RDMA_TDATA,
+    input[DATA_WBYTS-1:0] AXIS_RDMA_TKEEP,
+    input                 AXIS_RDMA_TVALID,
+    input                 AXIS_RDMA_TLAST,
+    output                AXIS_RDMA_TREADY,
+    //==========================================================================
+
+
+
     //=================  This is the main AXI4-master interface  ================
 
     // "Specify write address"              -- Master --    -- Slave --
-    output reg[ADDR_WBITS-1:0]               M_AXI_AWADDR,
-    output reg                               M_AXI_AWVALID,
-    output reg[7:0]                          M_AXI_AWLEN,
+    output[ADDR_WBITS-1:0]                   M_AXI_AWADDR,
+    output                                   M_AXI_AWVALID,
+    output[7:0]                              M_AXI_AWLEN,
     output[2:0]                              M_AXI_AWSIZE,
     output[3:0]                              M_AXI_AWID,
     output[1:0]                              M_AXI_AWBURST,
@@ -73,23 +89,11 @@ module rdma_recv #
     input                                                   M_AXI_RVALID,
     input[1:0]                                              M_AXI_RRESP,
     input                                                   M_AXI_RLAST,
-    output                                  M_AXI_RREADY,
+    output                                  M_AXI_RREADY
     //==========================================================================
 
-
-    //==========================================================================
-    //                     AXI Stream for incoming RDMA packets
-    //==========================================================================
-    input[DATA_WBITS-1:0] AXIS_RDMA_TDATA,
-    input[DATA_WBYTS-1:0] AXIS_RDMA_TKEEP,
-    input                 AXIS_RDMA_TVALID,
-    input                 AXIS_RDMA_TLAST,
-    output                AXIS_RDMA_TREADY
-    //==========================================================================
 
 );
-
-
 
 // The state of the input state-machine
 reg[1:0] ism_state;
@@ -98,7 +102,6 @@ reg[1:0] ism_state;
 localparam ISM_STARTING     = 0;
 localparam ISM_WAIT_FOR_HDR = 1;
 localparam ISM_XFER_PACKET  = 2;
-localparam ISM_WAIT_FOR_AW  = 3;
 
 // We're always ready to receive an AXI "write acknowledgement"
 assign M_AXI_BREADY = 1;
@@ -112,19 +115,6 @@ assign M_AXI_AWCACHE = 0;       /* No caching             */
 assign M_AXI_AWPROT  = 1;       /* Privileged Access      */
 assign M_AXI_AWQOS   = 0;       /* No QoS                 */
 
-// In state ISM_XFER_PACKET, the W channel is wired directly to the AXIS_RDMA input stream
-assign M_AXI_WDATA  = (ism_state == ISM_XFER_PACKET) ? AXIS_RDMA_TDATA : 0;
-assign M_AXI_WSTRB  = (ism_state == ISM_XFER_PACKET) ? AXIS_RDMA_TKEEP : 0;
-assign M_AXI_WLAST  = (ism_state == ISM_XFER_PACKET) ? AXIS_RDMA_TLAST : 0;
-assign M_AXI_WVALID = (ism_state == ISM_XFER_PACKET) & AXIS_RDMA_TVALID;
-
-// We're ready to receive data on the RDMA stream:
-//  (1) Whenever we're waiting for a packet header to arrive
-//  (2) When we're transferring the packet and the slave is ready to receive
-assign AXIS_RDMA_TREADY = (ism_state == ISM_WAIT_FOR_HDR) || (ism_state == ISM_XFER_PACKET && M_AXI_WREADY);
-
-// This will tell us whether we've seen a handshake on the AW-channel of M_AXI
-wire aw_handshake = (M_AXI_AWVALID == 0) || (M_AXI_AWREADY == 1);
 
 // AXIS_RDMA_TDATA comes to us in little-endian order.  Create a byte-swapped version of it
 // so we can easily break out the fields of the header in big-endian
@@ -144,7 +134,14 @@ wire[ 8 *8-1:0] target_addr;
 wire[ 1 *8-1:0] burst_len;
 wire[13 *8-1:0] reserved;
 
-// This is the 64-byte packet header for an RDMA packet
+// The "upd_length" field includes 8 bytes for the UDP header
+localparam UDP_HDR_LEN  = 8;
+
+// 22 bytes of the UDP packet data in an RDMA packet are RDMA header bytes
+localparam RDMA_HDR_LEN = 22;
+
+// This is the 64-byte packet header for an RDMA packet.  This is an ordinary UDP packet
+// with 22 bytes of RDMA header fields appended
 assign
 {
 
@@ -178,7 +175,76 @@ assign
 
 } = AXIS_RDMA_TDATA_swapped;
 
+// This is the value for M_AXI_AWLENs
+wire[7:0] awlen = burst_len;
 
+
+
+/* 
+// Compute the length of the RDMA packet (in bytes) sans headers
+wire[15:0] data_bytes_in_packet = udp_length - UDP_HDR_LEN - RDMA_HDR_LEN;
+
+// Compute the number of data-beats required to send packet data, sans headers.  
+wire[ 7:0] data_beats_in_packet = (data_bytes_in_packet >> 6) + ((data_bytes_in_packet & 6'b111111) ? 1 :0);
+wire[ 7:0] new_awlen = ((ism_state == ISM_WAIT_FOR_HDR) & AXIS_RDMA_TVALID) ? data_beats_in_packet-1 : 0;
+*/
+
+// We will write an entry to the target-address FIFO when:
+//     (1) We're waiting for an incoming RDMA packet header 
+// and (2) We have a valid data-cycle incoming on the AXIS_RDMA bus 
+wire ftain_tvalid = (ism_state == ISM_WAIT_FOR_HDR) & AXIS_RDMA_TREADY & AXIS_RDMA_TVALID;   
+wire ftain_tready;
+
+
+// We will write an entry to the packet-data FIFO when:
+//     (1) We're waiting for an incoming RDMA packet data
+// and (2) We have a valid data-cycle incoming on the AXIS_RDMA bus 
+wire fpdin_tvalid = (ism_state == ISM_XFER_PACKET) & AXIS_RDMA_TREADY & AXIS_RDMA_TVALID;
+wire fpdin_tready;
+
+// We're ready to receive on the AXIS_RDMA interface:
+//  (1) When waiting for a packet header, we're ready when the address FIFO is ready
+//  (2) When waiting for packet data, we're ready when the data FIFO is ready
+assign AXIS_RDMA_TREADY = (ism_state == ISM_WAIT_FOR_HDR) ? ftain_tready 
+                        : (ism_state == ISM_XFER_PACKET ) ? fpdin_tready
+                        : 0;
+
+
+
+
+
+//====================================================================================
+// This block computes the AXI AWLEN value for the packet by examining the
+// "udp_length" field of the RDMA header
+//====================================================================================
+reg[7:0] new_awlen;
+//------------------------------------------------------------------------------------
+reg[15:0] data_bytes_in_packet;
+reg[ 7:0] dbip_div_64;
+reg       dbip_has_remainder;
+//------------------------------------------------------------------------------------
+always @*
+begin
+    if ((ism_state == ISM_WAIT_FOR_HDR) & AXIS_RDMA_TVALID) begin
+        data_bytes_in_packet = udp_length - UDP_HDR_LEN - RDMA_HDR_LEN;
+        dbip_div_64          = (data_bytes_in_packet >> 6);
+        dbip_has_remainder   = (data_bytes_in_packet & 6'b111111) ? 1 : 0;
+        new_awlen            = (dbip_div_64 + dbip_has_remainder - 1);
+    end
+
+    // Prevent Vivado from inferring a latch
+    else new_awlen = 0;
+end
+//====================================================================================
+
+
+
+
+//====================================================================================
+// The input state-machine: reads incoming RDMA packets and stuffs the target address
+// from the header into the target-address FIFO and stuffs the remainder of the packet
+// into the packet-data FIFO.
+//====================================================================================
 always @(posedge clk) begin
     if (resetn == 0) begin
         ism_state <= ISM_STARTING;
@@ -186,42 +252,150 @@ always @(posedge clk) begin
     end else case (ism_state)
 
         // Here we're just coming out of reset
-        ISM_STARTING:
+        ISM_STARTING: 
             begin
                 ism_state <= ISM_WAIT_FOR_HDR;
             end
 
-        // If we've received an RDMA header, write the appropriate data to the AXI AW channel...
+        // Wait for an RDMA packet header to arrive
         ISM_WAIT_FOR_HDR:
             if (AXIS_RDMA_TREADY & AXIS_RDMA_TVALID) begin
-                M_AXI_AWADDR  <= target_addr;
-                M_AXI_AWLEN   <= burst_len;
-                M_AXI_AWVALID <= 1;
-                ism_state     <= ISM_XFER_PACKET;
+                ism_state <= ISM_XFER_PACKET;
             end
 
-        // Here, we're reading in data-beats from the stream and writing them to the W-channel of M_AXI
+        // Here, we're reading in data-beats from the stream and writing them to packet-data FIFO
         ISM_XFER_PACKET:
-            begin
-
-                // Lower M_AXI_AWVALID if we see a handshake on that channel
-                if (aw_handshake) M_AXI_AWVALID <= 0;
-
-                // If the last beat of the packet has been exchanged, determine whether or not
-                // we need to go wait for the AW channel handshake to occur
-                if (M_AXI_WREADY & M_AXI_WVALID & M_AXI_WLAST) begin
-                    ism_state = (aw_handshake) ? ISM_WAIT_FOR_HDR : ISM_WAIT_FOR_AW;
-                end
+            if (AXIS_RDMA_TREADY & AXIS_RDMA_TVALID & AXIS_RDMA_TLAST) begin
+                ism_state <= ISM_WAIT_FOR_HDR;
             end
 
-        // Here we're in the unusual situation of the entire packet data transfer occured, but
-        // we're still waiting for the handshake on the AW channel
-        ISM_WAIT_FOR_AW:
-            if (aw_handshake) begin
-                M_AXI_AWVALID <= 0;
-                ism_state     <= ISM_WAIT_FOR_HDR;
-            end
     endcase
 end
+//====================================================================================
+
+
+
+
+
+//====================================================================================
+// This FIFO holds the incoming packet data
+//====================================================================================
+xpm_fifo_axis #
+(
+   .FIFO_DEPTH(PACKET_FIFO_DEPTH), // DECIMAL
+   .TDATA_WIDTH(DATA_WBITS),       // DECIMAL
+   .FIFO_MEMORY_TYPE("auto"),      // String
+   .PACKET_FIFO("false"),          // String
+   .USE_ADV_FEATURES("0000")       // String
+)
+packet_data_fifo
+(
+    // Clock and reset
+   .s_aclk   (clk   ),                       
+   .m_aclk   (clk   ),             
+   .s_aresetn(resetn),
+
+    // The input of this FIFO is the AXIS_RDMA interface
+   .s_axis_tdata (AXIS_RDMA_TDATA),
+   .s_axis_tkeep (AXIS_RDMA_TKEEP),
+   .s_axis_tlast (AXIS_RDMA_TLAST),
+   .s_axis_tvalid(fpdin_tvalid   ),
+   .s_axis_tready(fpdin_tready   ),
+
+    // The output of this FIFO drives the "W" channel of the M_AXI interface
+   .m_axis_tdata (M_AXI_WDATA  ),     
+   .m_axis_tkeep (M_AXI_WSTRB  ),
+   .m_axis_tvalid(M_AXI_WVALID ),       
+   .m_axis_tlast (M_AXI_WLAST  ),         
+   .m_axis_tready(M_AXI_WREADY ),
+
+    // Unused input stream signals
+   .s_axis_tdest(),
+   .s_axis_tid  (),
+   .s_axis_tstrb(),
+   .s_axis_tuser(),
+
+    // Unused output stream signals
+   .m_axis_tdest(),             
+   .m_axis_tid  (),               
+   .m_axis_tstrb(), 
+   .m_axis_tuser(),         
+
+    // Other unused signals
+   .almost_empty_axis(),
+   .almost_full_axis(), 
+   .dbiterr_axis(),          
+   .prog_empty_axis(), 
+   .prog_full_axis(), 
+   .rd_data_count_axis(), 
+   .sbiterr_axis(),
+   .wr_data_count_axis(),
+   .injectdbiterr_axis(),
+   .injectsbiterr_axis()
+);
+//====================================================================================
+
+
+
+
+//====================================================================================
+// This FIFO holds the target-address of the incoming data packets
+//====================================================================================
+xpm_fifo_axis #
+(
+   .FIFO_DEPTH(PACKET_FIFO_DEPTH),  // DECIMAL
+   .TDATA_WIDTH(RDMA_HDR_BYTES*8),  // DECIMAL
+   .FIFO_MEMORY_TYPE("auto"),       // String
+   .PACKET_FIFO("false"),           // String
+   .USE_ADV_FEATURES("0000")        // String
+)
+target_addr_fifo
+(
+    // Clock and reset
+   .s_aclk   (clk   ),                       
+   .m_aclk   (clk   ),             
+   .s_aresetn(resetn),
+
+    // The input to this FIFO is derived from packet-headers on AXIS_RDMA
+   .s_axis_tdata ({awlen, target_addr}),
+   .s_axis_tvalid(ftain_tvalid        ),
+   .s_axis_tready(ftain_tready        ),
+
+    // The output bus of the FIFO drives the AW-channel of the M_AXI interface
+   .m_axis_tdata ({M_AXI_AWLEN, M_AXI_AWADDR}),     
+   .m_axis_tvalid(M_AXI_AWVALID              ),       
+   .m_axis_tready(M_AXI_AWREADY              ),     
+
+    // Unused input stream signals
+   .s_axis_tdest(),
+   .s_axis_tid  (),
+   .s_axis_tstrb(),
+   .s_axis_tuser(),
+   .s_axis_tkeep(),
+   .s_axis_tlast(),
+
+    // Unused output stream signals
+   .m_axis_tdest(),             
+   .m_axis_tid  (),               
+   .m_axis_tstrb(), 
+   .m_axis_tuser(),         
+   .m_axis_tkeep(),           
+   .m_axis_tlast(),         
+
+    // Other unused signals
+   .almost_empty_axis(),
+   .almost_full_axis(), 
+   .dbiterr_axis(),          
+   .prog_empty_axis(), 
+   .prog_full_axis(), 
+   .rd_data_count_axis(), 
+   .sbiterr_axis(),
+   .wr_data_count_axis(),
+   .injectdbiterr_axis(),
+   .injectsbiterr_axis()
+);
+//====================================================================================
+
+assign DBG_new_awlen = new_awlen;
 
 endmodule
