@@ -21,14 +21,6 @@ module data_generator #
 (
     input clk, resetn,
 
-    output[ 2:0] DBG_start_mode,
-    output[ 7:0] DBG_bsm_state,
-    output[31:0] DBG_data_word,
-    output[31:0] DBG_bursts_remaining,
-    output[ 7:0] DBG_beats_remaining,
-    output[31:0] DBG_delay_countdown,
-
-
     // These are useful for debugging when reading data back from RAM
     output[`M_AXI_DATA_WIDTH-1:0] expected_rdata,
     output reg                    selftest_ok,
@@ -92,7 +84,7 @@ module data_generator #
     output reg                         M2_AXI_AWVALID,
     output    [2:0]                    M2_AXI_AWPROT,
     output    [3:0]                    M2_AXI_AWID,
-    output reg[7:0]                    M2_AXI_AWLEN,
+    output    [7:0]                    M2_AXI_AWLEN,
     output    [2:0]                    M2_AXI_AWSIZE,
     output    [1:0]                    M2_AXI_AWBURST,
     output                             M2_AXI_AWLOCK,
@@ -102,9 +94,9 @@ module data_generator #
 
 
     // "Write Data"                    -- Master --    -- Slave --
-    output    [`M_AXI_DATA_WIDTH-1:0]  M2_AXI_WDATA,
+    output reg [`M_AXI_DATA_WIDTH-1:0] M2_AXI_WDATA,
     output reg                         M2_AXI_WVALID,
-    output reg[`M_AXI_DATA_BYTES-1:0]  M2_AXI_WSTRB,
+    output     [`M_AXI_DATA_BYTES-1:0] M2_AXI_WSTRB,
     output                             M2_AXI_WLAST,
     input                                              M2_AXI_WREADY,
 
@@ -196,6 +188,9 @@ wire        ashi_ridle;     // Output: 1 = Read state machine is idle
 // The state of the state-machines that handle AXI4-Lite read and AXI4-Lite write
 reg[3:0] axi4_write_state, axi4_read_state;
 
+// The state of the bursting state machine
+reg[7:0] bsm_state;
+
 // The AXI4 slave state machines are idle when in state 0 and their "start" signals are low
 assign ashi_widle = (ashi_write == 0) && (axi4_write_state == 0);
 assign ashi_ridle = (ashi_read  == 0) && (axi4_read_state  == 0);
@@ -271,6 +266,12 @@ always @(posedge clk) begin
 
                     REG_START_WRITE:
                         case (ashi_wdata)
+                            0:  /* Writing a zero just clears RAM */
+                                begin
+                                    burst_count <= 0;
+                                    start_mode  <= SM_FILL;
+                                end
+                            
                             64:
                                 begin
                                     burst_count     <= RAM_SIZE / 64;
@@ -383,7 +384,7 @@ always @(posedge clk) begin
             // Allow a read from any valid register                
             REG_INITIAL_VALUE: ashi_rdata <= initial_value;
             REG_WRITE_DELAY  : ashi_rdata <= write_delay;
-            REG_START_WRITE  : ashi_rdata <= block_size;
+            REG_START_WRITE  : ashi_rdata <= (start_mode == 0 && bsm_state == 0);
             REG_NARROW_WRITE : ashi_rdata <= byte_count;
             REG_READ_BACK    : ashi_rdata <= {selftest_ok, rcsm_idle};
             
@@ -403,11 +404,12 @@ end
 //    The AW-channel of M_AXI
 //    the  W-channel of M_AXI
 //==========================================================================
-reg[ 7:0] bsm_state;
 reg[31:0] data_word;
 reg[31:0] bursts_remaining;
-reg[ 7:0] beats_remaining;
+reg[15:0] beats_remaining;
 //==========================================================================
+
+// Constant settings for writing to the M_AXI interface
 assign M_AXI_AWSIZE  = $clog2(M_AXI_DATA_BYTES);
 assign M_AXI_AWBURST = 1;
 assign M_AXI_WLAST   = (M_AXI_WVALID & (beats_remaining == 0));
@@ -420,49 +422,111 @@ assign M_AXI_WDATA   = {
                       };
 
 
+// When we erase RAM, bursts are this many bytes
+localparam ERASE_BURST_SIZE = 1024;
+
+// Constant settings for writing to the M2_AXI interface
+assign M2_AXI_AWSIZE  = $clog2(M_AXI_DATA_BYTES);
+assign M2_AXI_AWBURST = 1;
+assign M2_AXI_WLAST   = M2_AXI_WVALID & (beats_remaining == 0);
+assign M2_AXI_BREADY  = 1;
+assign M2_AXI_AWLEN   = (ERASE_BURST_SIZE / M_AXI_DATA_BYTES) - 1;
+assign M2_AXI_WSTRB   = -1;
+
 
 // After we raise M_AXI_AWVALID, we've seen a handshake on the AW-channel
 // if we've lowered M_AXI_AWVALID or if the slave has indidicated he's ready
 wire aw_handshake = (M_AXI_AWVALID == 0 || M_AXI_AWREADY == 1);
+
+// After we raise M2_AXI_AWVALID, we've seen a handshake on the AW-channel
+// if we've lowered M2_AXI_AWVALID or if the slave has indicated he's ready
+wire m2_aw_handshake = (M2_AXI_AWVALID == 0 || M2_AXI_AWREADY == 1);
 
 // We use this for delays between AXI write transactions
 reg[31:0] delay_countdown;
 
 always @(posedge clk) begin
     if (resetn == 0) begin
-        bsm_state     <= 0;
-        M_AXI_AWVALID <= 0;
-        M_AXI_WVALID  <= 0;
+        bsm_state      <= 0;
+        M_AXI_AWVALID  <= 0;
+        M_AXI_WVALID   <= 0;
+        M2_AXI_AWVALID <= 0;
+        M2_AXI_WVALID  <= 0;
 
     end else case (bsm_state)
         0:  if (start_mode == SM_FILL) begin
+                bsm_state <= 10;
+            end
+            
+            else if (start_mode == SM_NARROW) begin
+                bsm_state <= 30;
+            end
+
+        // This group of states clears RAM to zero
+        10: begin
+                M2_AXI_WDATA     <= 0;
+                M2_AXI_AWADDR    <= RAM_ADDR;
+                bursts_remaining <= RAM_SIZE / ERASE_BURST_SIZE;
+                bsm_state        <= 11;                                
+            end
+        
+        11:  if (bursts_remaining == 0)
+                bsm_state        <= 20;
+            else begin
+                bursts_remaining <= bursts_remaining - 1;
+                beats_remaining  <= M2_AXI_AWLEN;
+                M2_AXI_AWVALID   <= 1;
+                M2_AXI_WVALID    <= 1;
+                bsm_state        <= 12;
+            end
+
+        12:  begin
+                if (m2_aw_handshake) M2_AXI_AWVALID <= 0;
+                
+                if (M2_AXI_WVALID & M2_AXI_WREADY & M2_AXI_WLAST) begin
+                    M2_AXI_WVALID  <= 0;
+                    if (m2_aw_handshake) begin
+                        M2_AXI_AWADDR  <= M_AXI_AWADDR + ERASE_BURST_SIZE;
+                        bsm_state      <= 11;
+                    end else begin
+                        bsm_state      <= 13;
+                    end
+                end
+
+                else beats_remaining <= beats_remaining - 1;
+            end 
+
+        13:  if (m2_aw_handshake) begin
+                M2_AXI_AWVALID <= 0;
+                M2_AXI_AWADDR  <= M_AXI_AWADDR + ERASE_BURST_SIZE;
+                bsm_state      <= 11;
+            end
+
+        // This group of states fills RAM with data
+        20: begin
                 data_word        <= initial_value;
                 M_AXI_AWADDR     <= RAM_ADDR;
                 M_AXI_AWLEN      <= beats_per_burst - 1;
                 M_AXI_WSTRB      <= -1;
                 bursts_remaining <= burst_count;
                 delay_countdown  <= 0;
-                bsm_state        <= 1;                                
+                bsm_state        <= 21;                                
             end
-            
-            else if (start_mode == SM_NARROW) begin
-                bsm_state <= 10;
-            end
-
-        1:  if (bursts_remaining == 0)
+        
+        21:  if (bursts_remaining == 0)
                 bsm_state        <= 0;
             else if (delay_countdown)
                 delay_countdown  <= delay_countdown - 1;
             else begin
                 bursts_remaining <= bursts_remaining - 1;
-                beats_remaining  <= beats_per_burst - 1;
+                beats_remaining  <= M_AXI_AWLEN;
                 delay_countdown  <= write_delay;
                 M_AXI_AWVALID    <= 1;
                 M_AXI_WVALID     <= 1;
-                bsm_state        <= 2;
+                bsm_state        <= 22;
             end
 
-        2:  begin
+        22:  begin
                 if (aw_handshake) M_AXI_AWVALID <= 0;
                 
                 if (M_AXI_WVALID & M_AXI_WREADY) begin
@@ -470,8 +534,12 @@ always @(posedge clk) begin
 
                     if (M_AXI_WLAST) begin
                         M_AXI_WVALID  <= 0;
-                        M_AXI_AWADDR  <= M_AXI_AWADDR + block_size;
-                        bsm_state     <= aw_handshake ? 1:3;
+                        if (aw_handshake) begin
+                            M_AXI_AWADDR  <= M_AXI_AWADDR + block_size;
+                            bsm_state     <= 21;
+                        end else begin
+                            bsm_state     <= 23;
+                        end
                     end
 
                     else beats_remaining <= beats_remaining - 1;
@@ -479,12 +547,14 @@ always @(posedge clk) begin
 
             end 
 
-        3:  if (aw_handshake) begin
+        23:  if (aw_handshake) begin
                 M_AXI_AWVALID <= 0;
-                bsm_state     <= 1;
+                M_AXI_AWADDR  <= M_AXI_AWADDR + block_size;
+                bsm_state     <= 21;
             end
 
-        10: begin
+        // This group of states performs a "narrow" write to RAM
+        30: begin
                 data_word       <= 32'hDEADBEEF - 15;
                 beats_remaining <= 0;
                 M_AXI_AWADDR    <= RAM_ADDR;
@@ -492,10 +562,10 @@ always @(posedge clk) begin
                 M_AXI_AWVALID   <= 1;
                 M_AXI_WSTRB     <= (1 << byte_count) - 1;
                 M_AXI_WVALID    <= 1;
-                bsm_state       <= 11;
+                bsm_state       <= 31;
             end
 
-        11: begin
+        31: begin
                 if ( M_AXI_AWVALID &  M_AXI_AWREADY) M_AXI_AWVALID <= 0;
                 if ( M_AXI_WVALID  &  M_AXI_WREADY ) M_AXI_WVALID  <= 0;
                 if (~M_AXI_AWVALID & ~M_AXI_AWREADY) bsm_state     <= 0;
@@ -655,13 +725,6 @@ axi4_lite_slave axi_slave
     .ASHI_RIDLE     (ashi_ridle)
 );
 //==========================================================================
-
-assign DBG_start_mode       = start_mode;
-assign DBG_bsm_state        = bsm_state;
-assign DBG_data_word        = data_word;
-assign DBG_bursts_remaining = bursts_remaining;
-assign DBG_beats_remaining  = beats_remaining;
-assign DBG_delay_countdown  = delay_countdown;
 
 
 endmodule

@@ -22,11 +22,11 @@ module axi_eth_status
     (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 rx_clk CLK" *)
     input rx_clk,
 
-    // Status signals for channel 0.  ss0_overrun is synchronous to rx_clk
-    input ss0_channel_up, ss0_overrun, 
+    // Status signals for channel 0, synchronous to rx_clk
+    input ss0_channel_up, ss0_overrun, ss0_pkt_dropped, 
 
-    // Status signals for channel 1.  ss1_overrun is synchronous to rx_clk
-    input ss1_channel_up, ss1_overrun,
+    // Status signals for channel 1, synchronous to rx_clk
+    input ss1_channel_up, ss1_overrun, ss1_pkt_dropped,
 
     //================== This is an AXI4-Lite slave interface ==================
         
@@ -63,6 +63,9 @@ module axi_eth_status
 
     // These are copies of the ss?_overrun signals, synchronous to axi_clk
     wire sync_ss0_overrun, sync_ss1_overrun;
+
+    // These are copies of the ss?_pkt_dropped signals, synchronous to axi_clk
+    wire sync_ss0_pkt_dropped, sync_ss1_pkt_dropped;
 
     //==========================================================================
     // We'll communicate with the AXI4-Lite Slave core with these signals.
@@ -107,13 +110,18 @@ module axi_eth_status
     // These are the bit positions in the status word
     localparam BIT_SS0_UP      =  0;
     localparam BIT_SS0_OVERRUN =  1;
+    localparam BIT_SS0_BAD_PKT =  2;
     localparam BIT_SS1_UP      = 16;
     localparam BIT_SS1_OVERRUN = 17;
+    localparam BIT_SS1_BAD_PKT = 18;
 
+    // Build the status word
     assign status_word[BIT_SS0_UP     ] = ss0_channel_up;
     assign status_word[BIT_SS0_OVERRUN] = ss0_overrun_latch;
+    assign status_word[BIT_SS0_BAD_PKT] = ss0_pkt_dropped;
     assign status_word[BIT_SS1_UP     ] = ss1_channel_up;
     assign status_word[BIT_SS1_OVERRUN] = ss1_overrun_latch;
+    assign status_word[BIT_SS1_BAD_PKT] = ss1_pkt_dropped;    
     
     //==========================================================================
     // This state machine handles AXI write-requests
@@ -182,14 +190,25 @@ module axi_eth_status
         .INIT_SYNC_FF  (0),   // DECIMAL; 0=disable simulation init values, 1=enable simulation init values
         .SIM_ASSERT_CHK(0),   // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
         .SRC_INPUT_REG (1),   // DECIMAL; 0=do not register input, 1=register input
-        .WIDTH         (2)    // DECIMAL; range: 1-1024
+        .WIDTH         (4)    // DECIMAL; range: 1-1024
     )
     ss_signal_cdc
     (
         .src_clk (rx_clk                              ),   
         .dest_clk(axi_clk                             ), 
-        .src_in  ({     ss1_overrun,      ss0_overrun}), 
-        .dest_out({sync_ss1_overrun, sync_ss0_overrun})
+        
+        .src_in  ({
+                    ss1_pkt_dropped,
+                    ss1_overrun,
+                    ss0_pkt_dropped,
+                    ss0_overrun       
+                 }), 
+        .dest_out({
+                    sync_ss1_pkt_dropped,
+                    sync_ss1_overrun,
+                    sync_ss0_pkt_dropped,
+                    sync_ss0_overrun       
+                 })
 
     );
     //==========================================================================

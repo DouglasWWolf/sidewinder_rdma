@@ -1,0 +1,20 @@
+{
+   "ActiveEmotionalView":"Default View",
+   "Default View_ScaleFactor":"1.0",
+   "Default View_TopLeft":"-546,-236",
+   "DisplayTieOff":"1",
+   "ExpandedHierarchyInLayout":"",
+   "guistr":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
+#  -string -flagsOSRD
+preplace port port-id_rx_clk -pg 1 -lvl 0 -x -20 -y 50 -defaultsOSRD
+preplace port port-id_ext_reset_in -pg 1 -lvl 0 -x -20 -y 70 -defaultsOSRD
+preplace portBus rx_resetn -pg 1 -lvl 2 -x 390 -y 110 -defaultsOSRD
+preplace inst proc_sys_reset -pg 1 -lvl 1 -x 190 -y 90 -defaultsOSRD
+preplace netloc qsfp0_ethernet_gt_rxusrclk2 1 0 1 NJ 50
+preplace netloc ethernet_usr_rx_reset 1 0 1 NJ 70
+preplace netloc proc_sys_reset_0_interconnect_aresetn 1 1 1 N 110
+levelinfo -pg 1 -20 190 390
+pagesize -pg 1 -db -bbox -sgen -160 -10 540 190
+"
+}
+

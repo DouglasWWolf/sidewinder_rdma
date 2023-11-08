@@ -32,14 +32,16 @@ REG_INITIAL_VALUE=$((BASE_ADDR +  0))
 ETH0_BASE=0x10000
 
 # Ethernet port 0 configuration and status registers
-          REG_ETH0_RESET=$((ETH0_BASE + 0x0004))
-      REG_ETH0_CONFIG_TX=$((ETH0_BASE + 0x000C))
-      REG_ETH0_CONFIG_RX=$((ETH0_BASE + 0x0014))
-       REG_ETH0_LOOPBACK=$((ETH0_BASE + 0x0090))
-        REG_ETH0_STAT_RX=$((ETH0_BASE + 0x0204))
-REG_ETH0_RSFEC_CONFIG_IC=$((ETH0_BASE + 0x1000))
-   REG_ETH0_RSFEC_CONFIG=$((ETH0_BASE + 0x107C))
-           REG_ETH0_TICK=$((ETH0_BASE + 0x02B0))
+           REG_ETH0_RESET=$((ETH0_BASE + 0x0004))
+       REG_ETH0_CONFIG_TX=$((ETH0_BASE + 0x000C))
+       REG_ETH0_CONFIG_RX=$((ETH0_BASE + 0x0014))
+        REG_ETH0_LOOPBACK=$((ETH0_BASE + 0x0090))
+         REG_ETH0_STAT_RX=$((ETH0_BASE + 0x0204))
+REG_STAT_RX_TOTAL_PACKETS=$((ETH0_BASE + 0x0608))
+      REG_STAT_RX_BAD_FCS=$((ETH0_BASE + 0x06C0))
+ REG_ETH0_RSFEC_CONFIG_IC=$((ETH0_BASE + 0x1000))
+    REG_ETH0_RSFEC_CONFIG=$((ETH0_BASE + 0x107C))
+            REG_ETH0_TICK=$((ETH0_BASE + 0x02B0))
 
 
 #==============================================================================
@@ -110,8 +112,7 @@ enable_ethernet()
       exit 1
   fi
 }
-#==============================================================================
-
+#====================================================================REG_RX_TOTAL
 
 
 
@@ -140,17 +141,26 @@ run_test ()
   pcireg $REG_START_WRITE $packet_length
 
   # Wait for RAM to fill
-  sleep 1
-
+  for (( ; ; ))
+  do
+    status=$(($(read_reg $REG_START_WRITE)))
+    if [ $status -eq 1 ]; then
+      break;
+    fi   
+  done
+  
   # Read back RAM 
   pcireg $REG_READ_BACK 1
 
   # Wait for the read-back to complete
-  sleep 1
-
-  # Capture the status of the read-back
-  status=$(($(read_reg $REG_READ_BACK)))
-
+  for (( ; ; ))
+  do
+    status=$(($(read_reg $REG_READ_BACK)))
+    if [ $status -eq 1 ] || [ $status -eq 3 ]; then
+      break;
+    fi   
+  done
+    
   # Determine whether the test passed or failed.  If the
   # test failed, capture the Ethernet statics registers
   if [ $status -eq 3 ]; then
@@ -158,6 +168,8 @@ run_test ()
   else
     echo "FAILED"
     pcireg $REG_ETH0_TICK 1  
+    echo -n "There were" $(($(read_reg $REG_STAT_RX_BAD_FCS))) "bad packets "
+    echo "out of a total of" $(($(read_reg $REG_STAT_RX_TOTAL_PACKETS)))
     exit 1
   fi
 }
@@ -166,9 +178,11 @@ run_test ()
 #
 #  Compute awlen from udp_length
 #  clean up old "new_awlen" logic
+#  Drop awlen from header in xmit
+#  Drop awlen from header in recv
 #  Test incoming UDP packets from PCj
-#  Write "packet drop" code
-#
+#  Fix Vivado writing to cache dir outside of project
+#  Change all the qsfp_xxx signal names to eth_xxx
 
 
 # Check to make sure the PCI bus sees our FPGA
@@ -182,13 +196,12 @@ fi
 enable_ethernet
 
 # Run a self-test at every legal packet size
-#run_test "  64"
-
 for (( n=1 ; n<=$loops ; n++ )); 
 do
   echo ">>>>> Test $n <<<<<"
   run_test " 128"
   run_test " 256"
+  run_test "  64"
   run_test " 512"
   run_test "1024"
   run_test "2048"

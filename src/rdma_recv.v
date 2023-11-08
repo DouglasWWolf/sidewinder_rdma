@@ -175,19 +175,11 @@ assign
 
 } = AXIS_RDMA_TDATA_swapped;
 
-// This is the value for M_AXI_AWLENs
-wire[7:0] awlen = burst_len;
 
-
-
-/* 
-// Compute the length of the RDMA packet (in bytes) sans headers
-wire[15:0] data_bytes_in_packet = udp_length - UDP_HDR_LEN - RDMA_HDR_LEN;
-
-// Compute the number of data-beats required to send packet data, sans headers.  
-wire[ 7:0] data_beats_in_packet = (data_bytes_in_packet >> 6) + ((data_bytes_in_packet & 6'b111111) ? 1 :0);
-wire[ 7:0] new_awlen = ((ism_state == ISM_WAIT_FOR_HDR) & AXIS_RDMA_TVALID) ? data_beats_in_packet-1 : 0;
-*/
+// This is the AXI awlen value for the data packet
+reg [7:0] awlen_reg;
+wire[7:0] awlen_imm;
+wire[7:0] awlen = (ism_state == ISM_WAIT_FOR_HDR) ? awlen_imm : awlen_reg;
 
 // We will write an entry to the target-address FIFO when:
 //     (1) We're waiting for an incoming RDMA packet header 
@@ -215,12 +207,12 @@ assign AXIS_RDMA_TREADY = (ism_state == ISM_WAIT_FOR_HDR) ? ftain_tready
 
 //====================================================================================
 // This block computes the AXI AWLEN value for the packet by examining the
-// "udp_length" field of the RDMA header
+// "udp_length" field of the RDMA header.
+//
+// The proper AXI AWLEN value is stored in awlen_imm
 //====================================================================================
-reg[7:0] new_awlen;
-//------------------------------------------------------------------------------------
 reg[15:0] data_bytes_in_packet;
-reg[ 7:0] dbip_div_64;
+reg[ 8:0] dbip_div_64;
 reg       dbip_has_remainder;
 //------------------------------------------------------------------------------------
 always @*
@@ -229,11 +221,11 @@ begin
         data_bytes_in_packet = udp_length - UDP_HDR_LEN - RDMA_HDR_LEN;
         dbip_div_64          = (data_bytes_in_packet >> 6);
         dbip_has_remainder   = (data_bytes_in_packet & 6'b111111) ? 1 : 0;
-        new_awlen            = (dbip_div_64 + dbip_has_remainder - 1);
+        awlen_imm            = (dbip_div_64 + dbip_has_remainder - 1);
     end
 
     // Prevent Vivado from inferring a latch
-    else new_awlen = 0;
+    else awlen_imm = 0;
 end
 //====================================================================================
 
@@ -260,6 +252,7 @@ always @(posedge clk) begin
         // Wait for an RDMA packet header to arrive
         ISM_WAIT_FOR_HDR:
             if (AXIS_RDMA_TREADY & AXIS_RDMA_TVALID) begin
+                awlen_reg <= awlen_imm;
                 ism_state <= ISM_XFER_PACKET;
             end
 
@@ -396,6 +389,6 @@ target_addr_fifo
 );
 //====================================================================================
 
-assign DBG_new_awlen = new_awlen;
+assign DBG_new_awlen = awlen;
 
 endmodule
