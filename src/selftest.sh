@@ -9,18 +9,37 @@
 # This Ethernet IP reset sequence and register map are from from page 128 of:
 # https://docs.xilinx.com/viewer/book-attachment/KjOBPi3JqmLEeXdcXhXzyg/bRkBpLztI2LO~ZutVtlDmw
 
+# Capture the command line parameters
+p1=$1
+p2=$2
 
-# Find out how many times we're going to loop through the test protocol
-if [ -z "$1" ]; then
-    loops=1
-else
-    loops=$1
-fi
+# These are the RDMA packet sizes that we can test
+fullset=$((64 | 128 | 256 | 512 | 1024 | 2048 | 4096 | 8192))
+
+# By default, we're going to test all of the packet sizes
+testset=${fullset}
+
+# Ensure that $p1 and $p2 have a value
+test -z $p1 && p1=1
+test -z $p2 && p2=1
+
+# Determine if the user is trying to specify the packet size to test
+test $p1 -eq 64   && testset=64
+test $p1 -eq 128  && testset=128
+test $p1 -eq 256  && testset=256
+test $p1 -eq 512  && testset=512
+test $p1 -eq 1024 && testset=1024
+test $p1 -eq 2048 && testset=2048
+test $p1 -eq 4096 && testset=4096
+test $p1 -eq 8192 && testset=8192
+
+# Determine how many times to run the test
+test $testset -eq $fullset && loops=$p1 || loops=$p2
 
 # This is the PCI base address of the data generator module
 BASE_ADDR=0x600
 
-# Compute the addresses of all the AXI registers
+# Compute the addresses of all the data generator AXI registers
 REG_INITIAL_VALUE=$((BASE_ADDR +  0))
   REG_WRITE_DELAY=$((BASE_ADDR +  4))
   REG_START_WRITE=$((BASE_ADDR +  8))
@@ -69,6 +88,14 @@ read_reg()
 #==============================================================================
 enable_ethernet()
 {
+  # If we already have PCS lock, do nothing.  Issuing a reset to the Ethernet
+  # core while it already has PCS does something that causes both the down-
+  # stream and upstream FIFOs to misbehave in unpleasant ways.
+  status=$(($(read_reg $REG_ETH0_STAT_RX)))
+  if [ $status -eq 3 ]; then
+      return
+  fi
+ 
   # Disable the Ethernet transmitter
   pcireg $REG_ETH0_CONFIG_TX 0
 
@@ -111,8 +138,11 @@ enable_ethernet()
       echo "PCS alignment failed!"
       exit 1
   fi
+
+  # Let the use know that all is well in Ethernet-land
+  echo "Ethernet enabled"
 }
-#====================================================================REG_RX_TOTAL
+#==============================================================================
 
 
 
@@ -130,7 +160,7 @@ run_test ()
 
   # This value will be written to the 32-bit word at RAM address 0
   # This can be any arbitrary value
-  pcireg $REG_INITIAL_VALUE $packet_length
+  pcireg $REG_INITIAL_VALUE 1
 
   # Allow 25 clock cycles between write transactions so we don't overflow
   # the Ethernet receive FIFO
@@ -175,19 +205,17 @@ run_test ()
 }
 #==============================================================================
 
-#
-#  Compute awlen from udp_length
-#  clean up old "new_awlen" logic
+# Test packaged up bad_packet_filter
+# Test packaged up packet_fifo
+# why can't I read 0x500??
 #  Drop awlen from header in xmit
-#  Drop awlen from header in recv
-#  Test incoming UDP packets from PCj
-#  Fix Vivado writing to cache dir outside of project
+#  Test incoming UDP packets from PC
 #  Change all the qsfp_xxx signal names to eth_xxx
 
 
 # Check to make sure the PCI bus sees our FPGA
 reg=$(($(read_reg $REG_INITIAL_VALUE)))
-if [ $reg -eq 4294967295 ]; then
+if [ $reg -eq $((0xFFFFFFFF)) ]; then
     echo "You forgot to issue a hot_reset"
     exit 1
 fi
@@ -199,14 +227,14 @@ enable_ethernet
 for (( n=1 ; n<=$loops ; n++ )); 
 do
   echo ">>>>> Test $n <<<<<"
-  run_test " 128"
-  run_test " 256"
-  run_test "  64"
-  run_test " 512"
-  run_test "1024"
-  run_test "2048"
-  run_test "4096"
-  run_test "8192"
+  test $((testset &   64)) -ne 0 && run_test "  64"  
+  test $((testset &  128)) -ne 0 && run_test " 128"
+  test $((testset &  256)) -ne 0 && run_test " 256"
+  test $((testset &  512)) -ne 0 && run_test " 512"
+  test $((testset & 1024)) -ne 0 && run_test "1024"
+  test $((testset & 2048)) -ne 0 && run_test "2048"
+  test $((testset & 4096)) -ne 0 && run_test "4096"
+  test $((testset & 8192)) -ne 0 && run_test "8192"
 done
 
 exit 0

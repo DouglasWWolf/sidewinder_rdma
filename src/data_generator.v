@@ -401,8 +401,11 @@ end
 // This state machine writes bursts of data on the AXI-Master interface
 //
 // Drives:
-//    The AW-channel of M_AXI
-//    the  W-channel of M_AXI
+//    The AW-channel of M_AXI and M2_AXI
+//    the  W-channel of M_AXI and M2_AXI
+//
+// We write to M2_AXI in order to clear RAM to zeros prior to filling it
+// with test data.
 //==========================================================================
 reg[31:0] data_word;
 reg[31:0] bursts_remaining;
@@ -483,22 +486,23 @@ always @(posedge clk) begin
         12:  begin
                 if (m2_aw_handshake) M2_AXI_AWVALID <= 0;
                 
-                if (M2_AXI_WVALID & M2_AXI_WREADY & M2_AXI_WLAST) begin
-                    M2_AXI_WVALID  <= 0;
-                    if (m2_aw_handshake) begin
-                        M2_AXI_AWADDR  <= M_AXI_AWADDR + ERASE_BURST_SIZE;
-                        bsm_state      <= 11;
-                    end else begin
-                        bsm_state      <= 13;
+                if (M2_AXI_WVALID & M2_AXI_WREADY) begin
+                    if (M2_AXI_WLAST) begin
+                        M2_AXI_WVALID  <= 0;
+                        if (m2_aw_handshake) begin
+                            M2_AXI_AWADDR  <= M2_AXI_AWADDR + ERASE_BURST_SIZE;
+                            bsm_state      <= 11;
+                        end else begin
+                            bsm_state      <= 13;
+                        end
                     end
-                end
-
-                else beats_remaining <= beats_remaining - 1;
-            end 
+                    else beats_remaining <= beats_remaining - 1;
+                end 
+            end
 
         13:  if (m2_aw_handshake) begin
                 M2_AXI_AWVALID <= 0;
-                M2_AXI_AWADDR  <= M_AXI_AWADDR + ERASE_BURST_SIZE;
+                M2_AXI_AWADDR  <= M2_AXI_AWADDR + ERASE_BURST_SIZE;
                 bsm_state      <= 11;
             end
 
@@ -513,7 +517,7 @@ always @(posedge clk) begin
                 bsm_state        <= 21;                                
             end
         
-        21:  if (bursts_remaining == 0)
+        21: if (bursts_remaining == 0)
                 bsm_state        <= 0;
             else if (delay_countdown)
                 delay_countdown  <= delay_countdown - 1;
@@ -725,6 +729,5 @@ axi4_lite_slave axi_slave
     .ASHI_RIDLE     (ashi_ridle)
 );
 //==========================================================================
-
 
 endmodule

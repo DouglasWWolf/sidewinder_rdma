@@ -194,8 +194,8 @@ module axi_eth_status
     )
     ss_signal_cdc
     (
-        .src_clk (rx_clk                              ),   
-        .dest_clk(axi_clk                             ), 
+        .src_clk (rx_clk ),   
+        .dest_clk(axi_clk), 
         
         .src_in  ({
                     ss1_pkt_dropped,
@@ -203,6 +203,7 @@ module axi_eth_status
                     ss0_pkt_dropped,
                     ss0_overrun       
                  }), 
+
         .dest_out({
                     sync_ss1_pkt_dropped,
                     sync_ss1_overrun,

@@ -1,0 +1,50 @@
+{
+   "ActiveEmotionalView":"No Loops",
+   "Default View_ScaleFactor":"1.0",
+   "Default View_TopLeft":"-407,-141",
+   "DisplayTieOff":"1",
+   "ExpandedHierarchyInLayout":"",
+   "No Loops_ExpandedHierarchyInLayout":"",
+   "No Loops_Layout":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
+#  -string -flagsOSRD
+preplace port ETH0_TX_STREAM -pg 1 -lvl 0 -x 0 -y 60 -defaultsOSRD
+preplace port M_AXIS -pg 1 -lvl 3 -x 540 -y 120 -defaultsOSRD
+preplace port port-id_eth_tx_clk_in -pg 1 -lvl 0 -x 0 -y 120 -defaultsOSRD
+preplace port port-id_resetn_250mhz -pg 1 -lvl 0 -x 0 -y 80 -defaultsOSRD
+preplace port port-id_data_clk_in -pg 1 -lvl 0 -x 0 -y 100 -defaultsOSRD
+preplace inst async_first_stage -pg 1 -lvl 1 -x 160 -y 60 -defaultsOSRD -pinDir S_AXIS left -pinY S_AXIS 0L -pinDir M_AXIS right -pinY M_AXIS 60R -pinDir s_axis_aresetn left -pinY s_axis_aresetn 20L -pinDir s_axis_aclk left -pinY s_axis_aclk 40L -pinDir m_axis_aclk left -pinY m_axis_aclk 60L
+preplace inst sync_second_stage -pg 1 -lvl 2 -x 400 -y 120 -swap {0 1 2 3 4 5 6 7 8 9 10 11 13 12} -defaultsOSRD -pinDir S_AXIS left -pinY S_AXIS 0L -pinDir M_AXIS right -pinY M_AXIS 0R -pinDir s_axis_aresetn left -pinY s_axis_aresetn 120L -pinDir s_axis_aclk left -pinY s_axis_aclk 60L
+preplace inst reset_synchronizer -pg 1 -lvl 1 -x 160 -y 240 -swap {2 1 0} -defaultsOSRD -pinDir dest_clk left -pinY dest_clk 20L -pinDir dest_rst_out right -pinY dest_rst_out 0R -pinDir src_rst left -pinY src_rst 0L
+preplace netloc m_axis_aclk_1 1 0 2 20 180 NJ
+preplace netloc resetn_250mhz_1 1 0 1 40 80n
+preplace netloc eth_tx_clk_in_1 1 0 1 NJ 100
+preplace netloc reset_synchronizer_dest_rst_out 1 1 1 N 240
+preplace netloc Conn1 1 0 1 NJ 60
+preplace netloc async_first_stage_M_AXIS 1 1 1 N 120
+preplace netloc sync_second_stage_M_AXIS 1 2 1 N 120
+levelinfo -pg 1 0 160 400 540
+pagesize -pg 1 -db -bbox -sgen -180 0 650 320
+",
+   "No Loops_ScaleFactor":"1.0",
+   "No Loops_TopLeft":"-507,-152",
+   "guistr":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
+#  -string -flagsOSRD
+preplace port ETH0_TX_STREAM -pg 1 -lvl 0 -x -10 -y 60 -defaultsOSRD
+preplace port M_AXIS -pg 1 -lvl 3 -x 740 -y 110 -defaultsOSRD
+preplace port port-id_eth_tx_clk_in -pg 1 -lvl 0 -x -10 -y 120 -defaultsOSRD
+preplace port port-id_resetn_250mhz -pg 1 -lvl 0 -x -10 -y 80 -defaultsOSRD
+preplace port port-id_data_clk_in -pg 1 -lvl 0 -x -10 -y 100 -defaultsOSRD
+preplace inst async_first_stage -pg 1 -lvl 1 -x 350 -y 90 -defaultsOSRD
+preplace inst sync_second_stage -pg 1 -lvl 2 -x 600 -y 110 -defaultsOSRD
+preplace inst system_ila_0 -pg 1 -lvl 1 -x 350 -y 300 -defaultsOSRD
+preplace netloc m_axis_aclk_1 1 0 2 10 180 470J
+preplace netloc resetn_250mhz_1 1 0 2 10J 0 470
+preplace netloc eth_tx_clk_in_1 1 0 1 NJ 100
+preplace netloc Conn1 1 0 1 NJ 60
+preplace netloc async_first_stage_M_AXIS 1 1 1 N 90
+preplace netloc sync_second_stage_M_AXIS 1 2 1 N 110
+levelinfo -pg 1 -10 350 600 740
+pagesize -pg 1 -db -bbox -sgen -190 -190 850 380
+"
+}
+

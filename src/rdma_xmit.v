@@ -21,8 +21,7 @@
     <> An RDMA header is:                                                           <>
     <>     An ordinary 42-byte ethernet/IP/UDP header                               <>
     <>     An 8-byte target address                                                 <>
-    <>     A 1-byte AXI-AWLEN value                                                 <>
-    <>     13 bytes of reserved data, always 0                                      <>
+    <>     14 bytes of reserved data, always 0                                      <>
     <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
     The incoming AXI data should be byte packed; only the last beat (the beat with

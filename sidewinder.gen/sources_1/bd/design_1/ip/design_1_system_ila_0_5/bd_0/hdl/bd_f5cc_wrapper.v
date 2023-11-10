@@ -11,7 +11,6 @@ module bd_f5cc_wrapper
     SLOT_0_AXIS_tkeep,
     SLOT_0_AXIS_tlast,
     SLOT_0_AXIS_tready,
-    SLOT_0_AXIS_tuser,
     SLOT_0_AXIS_tvalid,
     SLOT_1_AXI_araddr,
     SLOT_1_AXI_arburst,
@@ -51,15 +50,11 @@ module bd_f5cc_wrapper
     SLOT_1_AXI_wstrb,
     SLOT_1_AXI_wvalid,
     clk,
-    probe0,
-    probe1,
-    probe2,
     resetn);
   input [511:0]SLOT_0_AXIS_tdata;
   input [63:0]SLOT_0_AXIS_tkeep;
   input SLOT_0_AXIS_tlast;
   input SLOT_0_AXIS_tready;
-  input [0:0]SLOT_0_AXIS_tuser;
   input SLOT_0_AXIS_tvalid;
   input [63:0]SLOT_1_AXI_araddr;
   input [1:0]SLOT_1_AXI_arburst;
@@ -99,16 +94,12 @@ module bd_f5cc_wrapper
   input [63:0]SLOT_1_AXI_wstrb;
   input SLOT_1_AXI_wvalid;
   input clk;
-  input [7:0]probe0;
-  input [0:0]probe1;
-  input [0:0]probe2;
   input resetn;
 
   wire [511:0]SLOT_0_AXIS_tdata;
   wire [63:0]SLOT_0_AXIS_tkeep;
   wire SLOT_0_AXIS_tlast;
   wire SLOT_0_AXIS_tready;
-  wire [0:0]SLOT_0_AXIS_tuser;
   wire SLOT_0_AXIS_tvalid;
   wire [63:0]SLOT_1_AXI_araddr;
   wire [1:0]SLOT_1_AXI_arburst;
@@ -148,9 +139,6 @@ module bd_f5cc_wrapper
   wire [63:0]SLOT_1_AXI_wstrb;
   wire SLOT_1_AXI_wvalid;
   wire clk;
-  wire [7:0]probe0;
-  wire [0:0]probe1;
-  wire [0:0]probe2;
   wire resetn;
 
   bd_f5cc bd_f5cc_i
@@ -158,7 +146,6 @@ module bd_f5cc_wrapper
         .SLOT_0_AXIS_tkeep(SLOT_0_AXIS_tkeep),
         .SLOT_0_AXIS_tlast(SLOT_0_AXIS_tlast),
         .SLOT_0_AXIS_tready(SLOT_0_AXIS_tready),
-        .SLOT_0_AXIS_tuser(SLOT_0_AXIS_tuser),
         .SLOT_0_AXIS_tvalid(SLOT_0_AXIS_tvalid),
         .SLOT_1_AXI_araddr(SLOT_1_AXI_araddr),
         .SLOT_1_AXI_arburst(SLOT_1_AXI_arburst),
@@ -198,8 +185,5 @@ module bd_f5cc_wrapper
         .SLOT_1_AXI_wstrb(SLOT_1_AXI_wstrb),
         .SLOT_1_AXI_wvalid(SLOT_1_AXI_wvalid),
         .clk(clk),
-        .probe0(probe0),
-        .probe1(probe1),
-        .probe2(probe2),
         .resetn(resetn));
 endmodule

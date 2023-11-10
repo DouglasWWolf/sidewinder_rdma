@@ -14,11 +14,11 @@ preplace port port-id_clk -pg 1 -lvl 0 -x 0 -y 100 -defaultsOSRD
 preplace port port-id_resetn -pg 1 -lvl 0 -x 0 -y 120 -defaultsOSRD
 preplace inst datagen_ila -pg 1 -lvl 1 -x 200 -y 220 -defaultsOSRD -pinDir SLOT_0_AXI right -pinY SLOT_0_AXI 0R -pinDir SLOT_1_AXI right -pinY SLOT_1_AXI 20R -pinDir clk left -pinY clk 0L -pinBusDir probe0 right -pinBusY probe0 40R -pinBusDir probe1 right -pinBusY probe1 60R -pinDir resetn left -pinY resetn 20L
 preplace inst data_generator -pg 1 -lvl 1 -x 200 -y 60 -defaultsOSRD -pinDir M2_AXI right -pinY M2_AXI 0R -pinDir M_AXI right -pinY M_AXI 20R -pinDir S_AXI left -pinY S_AXI 0L -pinDir clk left -pinY clk 40L -pinDir resetn left -pinY resetn 60L -pinBusDir expected_rdata right -pinBusY expected_rdata 40R -pinDir selftest_ok right -pinY selftest_ok 60R
-preplace netloc clk_1 1 0 1 40J 100n
+preplace netloc clk_1 1 0 1 40 100n
 preplace netloc expected_rdata 1 1 1 380 100n
-preplace netloc resetn_1 1 0 1 20J 120n
+preplace netloc resetn_1 1 0 1 20 120n
 preplace netloc selftest_ok 1 1 1 360 120n
-preplace netloc Conn3 1 0 1 N 60
+preplace netloc Conn3 1 0 1 NJ 60
 preplace netloc M2_AXI 1 1 1 420 60n
 preplace netloc M_AXI 1 1 1 400 80n
 levelinfo -pg 1 0 200 440
