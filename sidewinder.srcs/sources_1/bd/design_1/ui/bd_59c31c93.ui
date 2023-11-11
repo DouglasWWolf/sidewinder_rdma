@@ -27,6 +27,8 @@ preplace inst reset_synchronizer -pg 1 -lvl 2 -x 540 -y 590 -defaultsOSRD -pinDi
 preplace inst store_and_forward -pg 1 -lvl 1 -x 190 -y 140 -defaultsOSRD -pinDir ETH_TX_STREAM left -pinY ETH_TX_STREAM 0L -pinDir M_AXIS right -pinY M_AXIS 0R -pinDir eth_tx_clk_in right -pinY eth_tx_clk_in 60R -pinDir resetn_250mhz left -pinY resetn_250mhz 40L -pinDir data_clk_in left -pinY data_clk_in 60L
 preplace inst bad_packet_filter -pg 1 -lvl 3 -x 920 -y 190 -defaultsOSRD -pinDir AXIS_IN left -pinY AXIS_IN 0L -pinDir AXIS_OUT right -pinY AXIS_OUT 0R -pinDir clk left -pinY clk 340L -pinDir resetn left -pinY resetn 360L -pinDir overrun right -pinY overrun 20R -pinDir bad_pkt_dropped right -pinY bad_pkt_dropped 40R
 preplace netloc aurora_64b66b_0_channel_up 1 2 2 730J 110 NJ
+preplace netloc bad_packet_filter_0_bad_pkt_dropped 1 3 1 N 230
+preplace netloc bad_packet_filter_0_overrun 1 3 1 N 210
 preplace netloc clock_1 1 0 2 NJ 390 340
 preplace netloc data_aresetn_1 1 0 1 40 180n
 preplace netloc data_clock_1 1 0 2 20 250 NJ
@@ -35,15 +37,13 @@ preplace netloc proc_sys_reset_0_interconnect_aresetn 1 2 2 770 610 NJ
 preplace netloc qsfp0_ethernet_gt_rxusrclk2 1 2 2 750 130 NJ
 preplace netloc reset_in_1 1 0 2 NJ 410 340
 preplace netloc reset_inverter_250mhz_Res 1 1 1 NJ 330
-preplace netloc bad_packet_filter_0_overrun 1 3 1 N 210
-preplace netloc bad_packet_filter_0_bad_pkt_dropped 1 3 1 N 230
 preplace netloc Conn2 1 0 2 NJ 80 NJ
 preplace netloc Conn7 1 2 2 NJ 60 NJ
 preplace netloc ETH_TX_STREAM_1 1 0 1 NJ 140
-preplace netloc qsfp0_clk_1 1 0 2 NJ 60 NJ
-preplace netloc saf_out 1 1 1 N 140
 preplace netloc bad_packet_filter_0_AXIS_OUT 1 3 1 N 190
 preplace netloc eth_core_axis_rx 1 2 1 N 190
+preplace netloc qsfp0_clk_1 1 0 2 NJ 60 NJ
+preplace netloc saf_out 1 1 1 N 140
 levelinfo -pg 1 0 190 540 920 1090
 pagesize -pg 1 -db -bbox -sgen -170 0 1270 660
 ",

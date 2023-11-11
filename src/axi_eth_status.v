@@ -6,10 +6,10 @@
 //====================================================================================
 // 03-Nov-23  DWW  1000  Initial creation
 //====================================================================================
-
-
+ 
 module axi_eth_status
 (
+
     (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 axi_clk CLK" *)
     (* X_INTERFACE_PARAMETER = "ASSOCIATED_RESET axi_resetn"        *)
     input axi_clk,
@@ -130,6 +130,7 @@ module axi_eth_status
         if (axi_resetn == 0) begin
             ss0_overrun_latch <= 0;
             ss1_overrun_latch <= 0;
+            ashi_wresp        <= DECERR;
         end else begin
 
             // Latch the overrun signals
@@ -161,11 +162,12 @@ module axi_eth_status
     //==========================================================================
     // World's simplest state machine for handling read requests
     //==========================================================================
-    always @(posedge clk) begin
+    always @(posedge axi_clk) begin
 
         // If we're in reset, initialize important registers
         if (axi_resetn == 0) begin
             read_state <= 0;
+            ashi_rresp <= DECERR;
         
         // If we're not in reset, and a read-request has occured...        
         end else if (ashi_read) begin
@@ -220,7 +222,7 @@ module axi_eth_status
     //==========================================================================
     axi4_lite_slave axi_slave
     (
-        .clk            (clk),
+        .clk            (axi_clk   ),
         .resetn         (axi_resetn),
         
         // AXI AW channel

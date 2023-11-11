@@ -122,10 +122,10 @@
       "led_pci_link_up": {
         "direction": "O"
       },
-      "qsfp0_up": {
+      "eth0_up": {
         "direction": "O"
       },
-      "qsfp1_up": {
+      "eth1_up": {
         "direction": "O"
       }
     },
@@ -591,10 +591,10 @@
             "type": "rst",
             "direction": "I"
           },
-          "qsfp0_channel_up": {
+          "eth0_channel_up": {
             "direction": "O"
           },
-          "qsfp1_channel_up": {
+          "eth1_channel_up": {
             "direction": "O"
           },
           "eth_tx_clk_in": {
@@ -2279,32 +2279,6 @@
               "axi_eth_status/axi_clk"
             ]
           },
-          "aurora_64b66b_0_channel_up": {
-            "ports": [
-              "ch0_ethernet/channel_up",
-              "qsfp0_channel_up",
-              "axi_eth_status/ss0_channel_up"
-            ]
-          },
-          "aurora_core_1_channel_up": {
-            "ports": [
-              "ch1_ethernet/channel_up",
-              "qsfp1_channel_up",
-              "axi_eth_status/ss1_channel_up"
-            ]
-          },
-          "ch0_ethernet_overrun": {
-            "ports": [
-              "ch0_ethernet/overrun",
-              "axi_eth_status/ss0_overrun"
-            ]
-          },
-          "ch0_ethernet_pkt_dropped": {
-            "ports": [
-              "ch0_ethernet/pkt_dropped",
-              "axi_eth_status/ss0_pkt_dropped"
-            ]
-          },
           "ch0_ethernet_rx_resetn": {
             "ports": [
               "ch0_ethernet/rx_resetn",
@@ -2313,23 +2287,49 @@
               "ch1_ethernet/eth_rx_resetn_in"
             ]
           },
-          "ch1_ethernet_overrun": {
-            "ports": [
-              "ch1_ethernet/overrun",
-              "axi_eth_status/ss1_overrun"
-            ]
-          },
-          "ch1_ethernet_pkt_dropped": {
-            "ports": [
-              "ch1_ethernet/pkt_dropped",
-              "axi_eth_status/ss1_pkt_dropped"
-            ]
-          },
           "clock_1": {
             "ports": [
               "init_clk",
               "ch0_ethernet/init_clk",
               "ch1_ethernet/init_clk"
+            ]
+          },
+          "eth0_channel_up": {
+            "ports": [
+              "ch0_ethernet/channel_up",
+              "eth0_channel_up",
+              "axi_eth_status/ss0_channel_up"
+            ]
+          },
+          "eth0_overrun": {
+            "ports": [
+              "ch0_ethernet/overrun",
+              "axi_eth_status/ss0_overrun"
+            ]
+          },
+          "eth0_pkt_dropped": {
+            "ports": [
+              "ch0_ethernet/pkt_dropped",
+              "axi_eth_status/ss0_pkt_dropped"
+            ]
+          },
+          "eth1_channel_up": {
+            "ports": [
+              "ch1_ethernet/channel_up",
+              "eth1_channel_up",
+              "axi_eth_status/ss1_channel_up"
+            ]
+          },
+          "eth1_overrun": {
+            "ports": [
+              "ch1_ethernet/overrun",
+              "axi_eth_status/ss1_overrun"
+            ]
+          },
+          "eth1_pkt_dropped": {
+            "ports": [
+              "ch1_ethernet/pkt_dropped",
+              "axi_eth_status/ss1_pkt_dropped"
             ]
           },
           "qsfp0_ethernet_gt_rxusrclk2": {
@@ -5215,6 +5215,18 @@
       }
     },
     "nets": {
+      "eth0_channel_up": {
+        "ports": [
+          "ethernet/eth0_channel_up",
+          "eth0_up"
+        ]
+      },
+      "eth1_channel_up": {
+        "ports": [
+          "ethernet/eth1_channel_up",
+          "eth1_up"
+        ]
+      },
       "ila_250mhz": {
         "ports": [
           "pcie_axi_bridge/axi_aclk",
@@ -5238,18 +5250,6 @@
         "ports": [
           "pcie_axi_bridge/led_pci_link_up",
           "led_pci_link_up"
-        ]
-      },
-      "qsfp_data_channel_up_0": {
-        "ports": [
-          "ethernet/qsfp0_channel_up",
-          "qsfp0_up"
-        ]
-      },
-      "qsfp_data_channel_up_1": {
-        "ports": [
-          "ethernet/qsfp1_channel_up",
-          "qsfp1_up"
         ]
       },
       "qsfp_data_rx_clk_out": {

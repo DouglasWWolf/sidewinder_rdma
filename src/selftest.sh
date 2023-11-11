@@ -84,7 +84,8 @@ read_reg()
 
 
 #==============================================================================
-# This enables RS-FEC and achieves PCS alignment
+# This enables RS-FEC and achieves PCS alignment.   If you pass it the
+# keyword "loopback", internal transciever loopback mode will be enabled.
 #==============================================================================
 enable_ethernet()
 {
@@ -106,7 +107,7 @@ enable_ethernet()
   pcireg $REG_ETH0_RSFEC_CONFIG 3
 
   # Turn on local loopback so that we receive the packets we send
-  pcireg $REG_ETH0_LOOPBACK 1
+  test "$1" == "loopback" && pcireg $REG_ETH0_LOOPBACK 1
 
   # Reset the Ethernet core to make the RS-FEC settings take effect
   pcireg $REG_ETH0_RESET 0xC0000000
@@ -130,7 +131,7 @@ enable_ethernet()
     sleep .2
   done
 
-  # Enable the Ethernet transmitted
+  # Enable the Ethernet transmitter
   pcireg $REG_ETH0_CONFIG_TX 1
 
   # Check to ensure that we have Ethernet PCS alignment
@@ -139,7 +140,7 @@ enable_ethernet()
       exit 1
   fi
 
-  # Let the use know that all is well in Ethernet-land
+  # Let the user know that all is well in Ethernet-land
   echo "Ethernet enabled"
 }
 #==============================================================================
@@ -218,6 +219,8 @@ if [ $reg -eq $((0xFFFFFFFF)) ]; then
 fi
 
 # Make sure that our Ethernet channel is up
+# If you change this line to "enable_ethernet loopback", the transciever loopback
+# will be enabled and no physical loopback connector will be required
 enable_ethernet
 
 # Run a self-test at every legal packet size

@@ -28,8 +28,8 @@ set_disable_timing [get_ports led_pci_link_up ]
 #######################################
 #  Miscellaneous
 #######################################
- set_property -dict {PACKAGE_PIN B5  IOSTANDARD LVCMOS33}  [get_ports { qsfp0_up         }] ;# USER_LED0
- set_property -dict {PACKAGE_PIN A5  IOSTANDARD LVCMOS33}  [get_ports { qsfp1_up         }] ;# USER_LED1
+ set_property -dict {PACKAGE_PIN B5  IOSTANDARD LVCMOS33}  [get_ports { eth0_up          }] ;# USER_LED0
+ set_property -dict {PACKAGE_PIN A5  IOSTANDARD LVCMOS33}  [get_ports { eth1_up          }] ;# USER_LED1
 #set_property -dict {PACKAGE_PIN A4  IOSTANDARD LVCMOS33}  [get_ports {  led[2]          }] ;# USER_LED2
 #set_property -dict {PACKAGE_PIN C5  IOSTANDARD LVCMOS33}  [get_ports {  led[3]          }] ;# USER_LED3
 #set_property -dict {PACKAGE_PIN C6  IOSTANDARD LVCMOS33}  [get_ports {  led[4]          }] ;# USER_LED4

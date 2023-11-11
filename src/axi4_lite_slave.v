@@ -88,7 +88,7 @@ module axi4_lite_slave
     assign AXI_RRESP = ASHI_RRESP;
 
     // Read-data is always whatever the handler says it is
-    assign AXI_RDATA = ASHI_RDATA;
+    assign AXI_RDATA = (resetn == 0) ? 32'hDEAD_BEEF : ASHI_RDATA;
 
     //=========================================================================================================
     // FSM logic for handling AXI read transactions
