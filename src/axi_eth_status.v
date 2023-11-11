@@ -164,7 +164,7 @@ module axi_eth_status
     always @(posedge clk) begin
 
         // If we're in reset, initialize important registers
-        if (resetn == 0) begin
+        if (axi_resetn == 0) begin
             read_state <= 0;
         
         // If we're not in reset, and a read-request has occured...        
@@ -221,7 +221,7 @@ module axi_eth_status
     axi4_lite_slave axi_slave
     (
         .clk            (clk),
-        .resetn         (resetn),
+        .resetn         (axi_resetn),
         
         // AXI AW channel
         .AXI_AWADDR     (S_AXI_AWADDR),

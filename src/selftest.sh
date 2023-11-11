@@ -160,7 +160,7 @@ run_test ()
 
   # This value will be written to the 32-bit word at RAM address 0
   # This can be any arbitrary value
-  pcireg $REG_INITIAL_VALUE 1
+  pcireg $REG_INITIAL_VALUE $RANDOM
 
   # Allow 25 clock cycles between write transactions so we don't overflow
   # the Ethernet receive FIFO
@@ -205,10 +205,7 @@ run_test ()
 }
 #==============================================================================
 
-# Test packaged up bad_packet_filter
-# Test packaged up packet_fifo
 # why can't I read 0x500??
-#  Drop awlen from header in xmit
 #  Test incoming UDP packets from PC
 #  Change all the qsfp_xxx signal names to eth_xxx
 

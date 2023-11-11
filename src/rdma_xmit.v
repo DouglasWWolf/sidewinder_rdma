@@ -57,7 +57,7 @@ module rdma_xmit #
     parameter ADDR_WBITS = ADDR_WBYTS * 8,
 
     // The number of bytes in the RDMA header fields
-    parameter RDMA_DATA_BYTES = 9,
+    parameter RDMA_HDR_FLDS = 8,
 
     // Last octet of the source MAC address
     parameter[ 7:0] SRC_MAC = 2,    
@@ -207,8 +207,8 @@ localparam[15:0] udp_src_port   = SRC_PORT;
 localparam[15:0] udp_dst_port   = DST_PORT;
 localparam[15:0] udp_checksum   = 0;
 
-// 13 bytes of reserved area in the RDMA header
-localparam[13*8-1:0] reserved   = 0;
+// 14 bytes of reserved area in the RDMA header
+localparam[14*8-1:0] reserved   = 0;
 
 // Compute both the IPv4 packet length and UDP packet length
 wire[15:0]       ip4_length     = IP_HDR_LEN  + UDP_HDR_LEN + RDMA_HDR_LEN + fplout_tdata;
@@ -230,16 +230,15 @@ wire[15:0] ip4_checksum = ~(ip4_cs32[15:0] + ip4_cs32[31:16]);
 
 // Fields for the RDMA header
 wire[8 *8-1:0] target_addr; 
-wire[1 *8-1:0] burst_len;
 
 // This is the output bus of RDMA header fields FIFO
-reg [RDMA_DATA_BYTES*8-1:0] rdma_hdr_fields;
-wire[RDMA_DATA_BYTES*8-1:0] frhout_tdata;
-wire                        frhout_tvalid;
-reg                         frhout_tready;
+reg [RDMA_HDR_FLDS*8-1:0] rdma_hdr_fields;
+wire[RDMA_HDR_FLDS*8-1:0] frhout_tdata;
+wire                      frhout_tvalid;
+reg                       frhout_tready;
 
-// Extract the target address and burst-length from the RDMA header fields
-assign {burst_len, target_addr} = (frhout_tready & frhout_tvalid) ? frhout_tdata : rdma_hdr_fields;
+// Extract the target address from the RDMA header fields
+assign target_addr = (frhout_tready & frhout_tvalid) ? frhout_tdata : rdma_hdr_fields;
 
 // This is the 64-byte packet header for an RDMA packet
 wire[STREAM_WBITS-1:0] pkt_header =
@@ -269,7 +268,6 @@ wire[STREAM_WBITS-1:0] pkt_header =
     
     // RDMA header fields - 22 bytes
     target_addr,
-    burst_len,
     reserved
 };
 
@@ -598,7 +596,7 @@ packet_length_fifo
 xpm_fifo_axis #
 (
    .FIFO_DEPTH(MAX_PACKET_COUNT),   // DECIMAL
-   .TDATA_WIDTH(RDMA_DATA_BYTES*8), // DECIMAL
+   .TDATA_WIDTH(RDMA_HDR_FLDS*8), // DECIMAL
    .FIFO_MEMORY_TYPE("auto"),       // String
    .PACKET_FIFO("false"),           // String
    .USE_ADV_FEATURES("0000")        // String
@@ -611,9 +609,9 @@ rdma_hdr_fifo
    .s_aresetn(resetn),
 
     // The input of this FIFO is wired directly the AW channel of the AXI interface
-   .s_axis_tdata ({S_AXI_AWLEN, S_AXI_AWADDR}),
-   .s_axis_tvalid(S_AXI_AWVALID              ),
-   .s_axis_tready(S_AXI_AWREADY              ),
+   .s_axis_tdata (S_AXI_AWADDR ),
+   .s_axis_tvalid(S_AXI_AWVALID),
+   .s_axis_tready(S_AXI_AWREADY),
 
     // The output bus of the FIFO
    .m_axis_tdata (frhout_tdata ),     

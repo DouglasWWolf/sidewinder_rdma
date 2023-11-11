@@ -12,7 +12,7 @@ proc init_gui { IPINST } {
   ipgui::add_param $IPINST -name "DST_IP3" -parent ${Page_0}
   ipgui::add_param $IPINST -name "DST_PORT" -parent ${Page_0}
   ipgui::add_param $IPINST -name "MAX_PACKET_COUNT" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "RDMA_DATA_BYTES" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "RDMA_HDR_FLDS" -parent ${Page_0}
   ipgui::add_param $IPINST -name "SRC_IP0" -parent ${Page_0}
   ipgui::add_param $IPINST -name "SRC_IP1" -parent ${Page_0}
   ipgui::add_param $IPINST -name "SRC_IP2" -parent ${Page_0}
@@ -106,12 +106,12 @@ proc validate_PARAM_VALUE.MAX_PACKET_COUNT { PARAM_VALUE.MAX_PACKET_COUNT } {
 	return true
 }
 
-proc update_PARAM_VALUE.RDMA_DATA_BYTES { PARAM_VALUE.RDMA_DATA_BYTES } {
-	# Procedure called to update RDMA_DATA_BYTES when any of the dependent parameters in the arguments change
+proc update_PARAM_VALUE.RDMA_HDR_FLDS { PARAM_VALUE.RDMA_HDR_FLDS } {
+	# Procedure called to update RDMA_HDR_FLDS when any of the dependent parameters in the arguments change
 }
 
-proc validate_PARAM_VALUE.RDMA_DATA_BYTES { PARAM_VALUE.RDMA_DATA_BYTES } {
-	# Procedure called to validate RDMA_DATA_BYTES
+proc validate_PARAM_VALUE.RDMA_HDR_FLDS { PARAM_VALUE.RDMA_HDR_FLDS } {
+	# Procedure called to validate RDMA_HDR_FLDS
 	return true
 }
 
@@ -208,9 +208,9 @@ proc update_MODELPARAM_VALUE.ADDR_WBITS { MODELPARAM_VALUE.ADDR_WBITS PARAM_VALU
 	set_property value [get_property value ${PARAM_VALUE.ADDR_WBITS}] ${MODELPARAM_VALUE.ADDR_WBITS}
 }
 
-proc update_MODELPARAM_VALUE.RDMA_DATA_BYTES { MODELPARAM_VALUE.RDMA_DATA_BYTES PARAM_VALUE.RDMA_DATA_BYTES } {
+proc update_MODELPARAM_VALUE.RDMA_HDR_FLDS { MODELPARAM_VALUE.RDMA_HDR_FLDS PARAM_VALUE.RDMA_HDR_FLDS } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
-	set_property value [get_property value ${PARAM_VALUE.RDMA_DATA_BYTES}] ${MODELPARAM_VALUE.RDMA_DATA_BYTES}
+	set_property value [get_property value ${PARAM_VALUE.RDMA_HDR_FLDS}] ${MODELPARAM_VALUE.RDMA_HDR_FLDS}
 }
 
 proc update_MODELPARAM_VALUE.SRC_MAC { MODELPARAM_VALUE.SRC_MAC PARAM_VALUE.SRC_MAC } {

@@ -1,0 +1,28 @@
+{
+   "ActiveEmotionalView":"Default View",
+   "Default View_ScaleFactor":"1.0",
+   "Default View_TopLeft":"-331,-158",
+   "DisplayTieOff":"1",
+   "ExpandedHierarchyInLayout":"",
+   "guistr":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
+#  -string -flagsOSRD
+preplace port ETH_TX_STREAM -pg 1 -lvl 0 -x 0 -y 50 -defaultsOSRD
+preplace port M_AXIS -pg 1 -lvl 3 -x 540 -y 100 -defaultsOSRD
+preplace port port-id_eth_tx_clk_in -pg 1 -lvl 0 -x 0 -y 110 -defaultsOSRD
+preplace port port-id_resetn_250mhz -pg 1 -lvl 0 -x 0 -y 70 -defaultsOSRD
+preplace port port-id_data_clk_in -pg 1 -lvl 0 -x 0 -y 90 -defaultsOSRD
+preplace inst async_first_stage -pg 1 -lvl 1 -x 150 -y 80 -defaultsOSRD
+preplace inst sync_second_stage -pg 1 -lvl 2 -x 400 -y 100 -defaultsOSRD
+preplace inst reset_synchronizer -pg 1 -lvl 1 -x 150 -y 240 -defaultsOSRD
+preplace netloc eth_tx_clk_in_1 1 0 1 NJ 90
+preplace netloc m_axis_aclk_1 1 0 2 20 170 280
+preplace netloc reset_synchronizer_dest_rst_out 1 1 1 270 100n
+preplace netloc resetn_250mhz_1 1 0 1 30 70n
+preplace netloc Conn1 1 0 1 NJ 50
+preplace netloc async_first_stage_M_AXIS 1 1 1 N 80
+preplace netloc sync_second_stage_M_AXIS 1 2 1 N 100
+levelinfo -pg 1 0 150 400 540
+pagesize -pg 1 -db -bbox -sgen -170 -10 650 310
+"
+}
+

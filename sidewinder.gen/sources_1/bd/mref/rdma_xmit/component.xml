@@ -407,7 +407,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>3324a007</spirit:value>
+            <spirit:value>b9908b7c</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -420,7 +420,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>3324a007</spirit:value>
+            <spirit:value>b9908b7c</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -1153,9 +1153,9 @@
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.ADDR_WBITS" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.ADDR_WBYTS&apos;)) * 8)">64</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
-        <spirit:name>RDMA_DATA_BYTES</spirit:name>
-        <spirit:displayName>Rdma Data Bytes</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.RDMA_DATA_BYTES">9</spirit:value>
+        <spirit:name>RDMA_HDR_FLDS</spirit:name>
+        <spirit:displayName>Rdma Hdr Flds</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.RDMA_HDR_FLDS">8</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
         <spirit:name>SRC_MAC</spirit:name>
@@ -1237,7 +1237,7 @@
       <spirit:file>
         <spirit:name>xgui/rdma_xmit_v1_0.tcl</spirit:name>
         <spirit:fileType>tclSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_96dd4960</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_88577325</spirit:userFileType>
         <spirit:userFileType>XGUI_VERSION_2</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
@@ -1265,9 +1265,9 @@
       <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.ADDR_WBITS">64</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
-      <spirit:name>RDMA_DATA_BYTES</spirit:name>
-      <spirit:displayName>Rdma Data Bytes</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.RDMA_DATA_BYTES">9</spirit:value>
+      <spirit:name>RDMA_HDR_FLDS</spirit:name>
+      <spirit:displayName>Rdma Hdr Flds</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.RDMA_HDR_FLDS">8</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>SRC_MAC</spirit:name>
@@ -1354,7 +1354,7 @@
         <xilinx:designToolContext>IPI</xilinx:designToolContext>
       </xilinx:designToolContexts>
       <xilinx:coreRevision>1</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2023-11-10T10:35:22Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2023-11-11T01:39:19Z</xilinx:coreCreationDateTime>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2021.1</xilinx:xilinxVersion>
