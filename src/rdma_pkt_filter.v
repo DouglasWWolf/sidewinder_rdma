@@ -118,8 +118,8 @@ assign
 
 } = AXIS_IN_TDATA_swapped;
 
-// The first cycle of a packet is considered an RDMA packet if the protocl is
-// UDP (i.e., 17) and the port number is one of the RDMA UDP port number
+// The first cycle of a packet is considered an RDMA packet if the protocol is
+// UDP (i.e., 17) and the port number is one of the RDMA UDP port numbers
 wire is_rdma_imm = (ip4_ttl_prot[7:0] == 17)
                  & (udp_dst_port      == RDMA_DEST_PORT1 || udp_dst_port == RDMA_DEST_PORT2)
                  & (rdma_magic        == RDMA_MAGIC);
