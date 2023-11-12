@@ -9,6 +9,18 @@
 # This Ethernet IP reset sequence and register map are from from page 128 of:
 # https://docs.xilinx.com/viewer/book-attachment/KjOBPi3JqmLEeXdcXhXzyg/bRkBpLztI2LO~ZutVtlDmw
 
+
+# <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+# <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+#  If you will be using this tool to send packets greater than 1024 bytes long, 
+#  to a PC, don't forget to change the MTU of the interface on the receiving side.
+#
+#  In Ubuntu, you can do this by:
+#     sudo ifconfig <interface_name> mtu 9600 up
+#
+# <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+# <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
 # Capture the command line parameters
 p1=$1
 p2=$2
