@@ -20,8 +20,9 @@
     <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     <> An RDMA header is:                                                           <>
     <>     An ordinary 42-byte ethernet/IP/UDP header                               <>
-    <>     An 8-byte target address                                                 <>
-    <>     14 bytes of reserved data, always 0                                      <>
+    <>     A  2-byte magic number (0x0122)
+    <>     A  8-byte target address                                                 <>
+    <>     12 bytes of reserved data, always 0                                      <>
     <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
     The incoming AXI data should be byte packed; only the last beat (the beat with
@@ -207,8 +208,11 @@ localparam[15:0] udp_src_port   = SRC_PORT;
 localparam[15:0] udp_dst_port   = DST_PORT;
 localparam[15:0] udp_checksum   = 0;
 
-// 14 bytes of reserved area in the RDMA header
-localparam[14*8-1:0] reserved   = 0;
+// 2 bytes of magic number
+localparam[15:0] rdma_magic = 16'h0122;
+
+// 12 bytes of reserved area in the RDMA header
+localparam[12*8-1:0] rdma_reserved   = 0;
 
 // Compute both the IPv4 packet length and UDP packet length
 wire[15:0]       ip4_length     = IP_HDR_LEN  + UDP_HDR_LEN + RDMA_HDR_LEN + fplout_tdata;
@@ -229,7 +233,7 @@ wire[31:0] ip4_cs32 = ip4_ver_dsf
 wire[15:0] ip4_checksum = ~(ip4_cs32[15:0] + ip4_cs32[31:16]);
 
 // Fields for the RDMA header
-wire[8 *8-1:0] target_addr; 
+wire[8 *8-1:0] rdma_target_addr; 
 
 // This is the output bus of RDMA header fields FIFO
 reg [RDMA_HDR_FLDS*8-1:0] rdma_hdr_fields;
@@ -237,8 +241,9 @@ wire[RDMA_HDR_FLDS*8-1:0] frhout_tdata;
 wire                      frhout_tvalid;
 reg                       frhout_tready;
 
-// Extract the target address from the RDMA header fields
-assign target_addr = (frhout_tready & frhout_tvalid) ? frhout_tdata : rdma_hdr_fields;
+// Extract the target address from the RDMA header fields that we have
+// buffered up in a FIFO
+assign rdma_target_addr = (frhout_tready & frhout_tvalid) ? frhout_tdata : rdma_hdr_fields;
 
 // This is the 64-byte packet header for an RDMA packet
 wire[STREAM_WBITS-1:0] pkt_header =
@@ -267,8 +272,9 @@ wire[STREAM_WBITS-1:0] pkt_header =
     udp_checksum,
     
     // RDMA header fields - 22 bytes
-    target_addr,
-    reserved
+    rdma_magic,
+    rdma_target_addr,
+    rdma_reserved
 };
 
 

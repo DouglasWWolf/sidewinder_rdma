@@ -1,0 +1,16 @@
+#!/bin/bash
+# -----------------------------------------------------------------------------
+#  This script shows the PCI configuration of the Xilinx PCI device
+#
+#  If you run this via 'sudo' you will see "capabilities" information that is
+#  otherwise protected
+# -----------------------------------------------------------------------------
+line=$(lspci | grep Xilinx)
+if [ -z "$line" ]; then
+   echo "Error: no device found via lspci"
+   exit 1
+fi
+line=($line)
+device_id=${line[0]}
+
+lspci -vv -s $device_id

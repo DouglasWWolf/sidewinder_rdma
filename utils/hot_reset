@@ -1,0 +1,76 @@
+#!/bin/bash
+# -----------------------------------------------------------------------
+#  This script causes the Linux to re-scan the PCI bus for the
+#  specified PCI device
+#
+#  This script must be run with root privileges!  Use sudo.
+# ----------------------------------------------------------------------
+
+# Ensure that we're running with root privileges
+if [ $(id -u) -ne 0 ]; then
+    sudo $0 $1
+    exit $?
+fi
+
+# This is the default device identification for our project
+default_device=10ee:903f
+
+# Fetch the device BDF from the command line
+device=$1
+
+# If the user didn't specify a device BDF, try to find one for the
+# default device
+if [ -z "$device" ]; then
+    line=$(lspci -d $default_device)
+    if [ -z "$line" ]; then
+        echo "Error: no device specified or discovered"
+        exit 1
+    fi  
+    line=($line)
+    device=${line[0]}
+    echo "Found Xilinx PCI device with device ID $device"
+fi
+
+# Check to see if we need to prepend domain "0000:" to the device name
+if [ ! -e "/sys/bus/pci/devices/$device" ]; then
+    device="0000:$device"
+fi
+
+# If we still can't find that device, tell the user and quit
+if [ ! -e "/sys/bus/pci/devices/$device" ]; then
+    echo "Error: device $device not found"
+    exit 1
+fi
+
+# Find out what bridge port is associated with this PCI device
+port=$(basename $(dirname $(readlink "/sys/bus/pci/devices/$device")))
+
+# If we don't have the ability to control that bridge, quit
+if [ ! -e "/sys/bus/pci/devices/$port" ]; then
+    echo "Error: device $port not found"
+    exit 1
+fi
+
+# Remove our PCI device from the PCI device list
+echo "Removing $device..."
+echo 1 > "/sys/bus/pci/devices/$device/remove"
+
+# Turn the bridge-control reset pin on for a moment, then off
+echo "Performing hot reset of port $port..."
+echo "Bridge control:" $(setpci -s $port BRIDGE_CONTROL)
+setpci -s $port BRIDGE_CONTROL=40:40
+sleep 0.5
+setpci -s $port BRIDGE_CONTROL=00:40
+sleep 0.5
+
+# Rescan our PCI device
+echo "Rescanning bus..."
+if [ -e "/sys/bus/pci/devices/$port/dev_rescan" ]; then
+    echo 1 > "/sys/bus/pci/devices/$port/dev_rescan"
+else
+    echo 1 > "/sys/bus/pci/devices/$port/rescan"
+fi
+
+echo "Enabling BusMaster mode on $device"
+setpci -s $device COMMAND=0106
+

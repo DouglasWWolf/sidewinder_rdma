@@ -188,13 +188,15 @@ run_test ()
   # Tell the user what we're doing
   echo -n "Testing with packet size $1...  "
 
-  # This value will be written to the 32-bit word at RAM address 0
+  # This value will be written to the 32-bit word at remote RAM offset 0
   # This can be any arbitrary value
   pcireg $REG_INITIAL_VALUE $RANDOM
 
-  # Allow 25 clock cycles between write transactions so we don't overflow
-  # the Ethernet receive FIFO
-  pcireg $REG_WRITE_DELAY 250000
+  # Specify the number of clock cycles to delay between sending packets.
+  # This can be very low (even 0) for a local loopback.   If you're sending
+  # data to a PC and are trying to avoid overflowing its buffers, try
+  # a value of 25000 (that's 100 microseconds between packets)
+  pcireg $REG_WRITE_DELAY 25000
 
   # Fill RAM with data, using RDMA packets of the specified size.
   # This can be any power of 2 between 64 and 8192

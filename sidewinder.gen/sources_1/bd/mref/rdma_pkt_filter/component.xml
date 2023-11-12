@@ -161,7 +161,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>da0d4ba8</spirit:value>
+            <spirit:value>84e6c3bf</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -174,7 +174,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>da0d4ba8</spirit:value>
+            <spirit:value>84e6c3bf</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -385,9 +385,14 @@
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.DATA_WBYTS" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.DATA_WBITS&apos;)) / 8)">64</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
-        <spirit:name>RDMA_DEST_PORT</spirit:name>
-        <spirit:displayName>Rdma Dest Port</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.RDMA_DEST_PORT">11111</spirit:value>
+        <spirit:name>RDMA_DEST_PORT1</spirit:name>
+        <spirit:displayName>Rdma Dest Port1</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.RDMA_DEST_PORT1">11111</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="integer">
+        <spirit:name>RDMA_DEST_PORT2</spirit:name>
+        <spirit:displayName>Rdma Dest Port2</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.RDMA_DEST_PORT2">32002</spirit:value>
       </spirit:modelParameter>
     </spirit:modelParameters>
   </spirit:model>
@@ -404,7 +409,7 @@
       <spirit:file>
         <spirit:name>xgui/rdma_pkt_filter_v1_0.tcl</spirit:name>
         <spirit:fileType>tclSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_06e64ea2</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_d85854ab</spirit:userFileType>
         <spirit:userFileType>XGUI_VERSION_2</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
@@ -422,9 +427,14 @@
       <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.DATA_WBYTS">64</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
-      <spirit:name>RDMA_DEST_PORT</spirit:name>
-      <spirit:displayName>Rdma Dest Port</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.RDMA_DEST_PORT">11111</spirit:value>
+      <spirit:name>RDMA_DEST_PORT1</spirit:name>
+      <spirit:displayName>Rdma Dest Port1</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.RDMA_DEST_PORT1">11111</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>RDMA_DEST_PORT2</spirit:name>
+      <spirit:displayName>Rdma Dest Port2</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.RDMA_DEST_PORT2">32002</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>Component_Name</spirit:name>
@@ -446,7 +456,7 @@
         <xilinx:designToolContext>IPI</xilinx:designToolContext>
       </xilinx:designToolContexts>
       <xilinx:coreRevision>1</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2023-11-12T07:06:21Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2023-11-12T11:19:48Z</xilinx:coreCreationDateTime>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2021.1</xilinx:xilinxVersion>

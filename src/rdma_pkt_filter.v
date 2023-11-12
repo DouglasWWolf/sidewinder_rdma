@@ -20,7 +20,8 @@ module rdma_pkt_filter #
 (
     parameter DATA_WBITS        = 512,
     parameter DATA_WBYTS        = (DATA_WBITS / 8),
-    parameter RDMA_DEST_PORT    = 11111
+    parameter RDMA_DEST_PORT1   = 11111,
+    parameter RDMA_DEST_PORT2   = 32002
 )
 (
     input wire  clk, resetn,
@@ -47,6 +48,9 @@ module rdma_pkt_filter #
     //==========================================================================
 
 );
+
+// This is the magic number for an RDMA packet
+localparam RDMA_MAGIC = 16'h0122;
 
 // The entire output stream (other than TVALID) is driven by the input stream
 assign AXIS_OUT_TDATA = AXIS_IN_TDATA;
@@ -76,8 +80,9 @@ wire[ 2 *8-1:0] eth_frame_type;
 wire[ 2 *8-1:0] ip4_ver_dsf, ip4_length, ip4_id, ip4_flags, ip4_ttl_prot, ip4_checksum;
 wire[ 2 *8-1:0] ip4_srcip_h, ip4_srcip_l, ip4_dstip_h, ip4_dstip_l;
 wire[ 2 *8-1:0] udp_src_port, udp_dst_port, udp_length, udp_checksum;
-wire[ 8 *8-1:0] target_addr;
-wire[14 *8-1:0] reserved;
+wire[ 2 *8-1:0] rdma_magic;
+wire[ 8 *8-1:0] rdma_target_addr;
+wire[12 *8-1:0] rdma_reserved;
 
 // This is the 64-byte packet header for an RDMA packet.  This is an ordinary UDP packet
 // with 22 bytes of RDMA header fields appended
@@ -107,14 +112,17 @@ assign
     udp_checksum,
     
     // RDMA header fields - 22 bytes
-    target_addr,
-    reserved
+    rdma_magic,
+    rdma_target_addr,
+    rdma_reserved
 
 } = AXIS_IN_TDATA_swapped;
 
 // The first cycle of a packet is considered an RDMA packet if the protocl is
-// UDP (i.e., 17) and the port number is the UDP port number
-wire is_rdma_imm = (ip4_ttl_prot[7:0] == 17) && (udp_dst_port == RDMA_DEST_PORT);
+// UDP (i.e., 17) and the port number is one of the RDMA UDP port number
+wire is_rdma_imm = (ip4_ttl_prot[7:0] == 17)
+                 & (udp_dst_port      == RDMA_DEST_PORT1 || udp_dst_port == RDMA_DEST_PORT2)
+                 & (rdma_magic        == RDMA_MAGIC);
 reg  is_rdma_reg;
 
 // This will be high on any data-cycle of an RDMA packet

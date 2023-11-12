@@ -30,6 +30,11 @@ module rdma_recv #
 (
     input wire  clk, resetn,
 
+    // This will go high on any clock cycle that we receive the last 
+    // cycle of a packet.   It is convenient for counting the number of 
+    // packets received.
+    output inc_packets_rcvd,
+
     //==========================================================================
     //                     AXI Stream for incoming RDMA packets
     //==========================================================================
@@ -93,6 +98,9 @@ module rdma_recv #
 
 );
 
+// "inc_packets_rcvd" is high on any cycle when we receive the end-of-packet
+assign inc_packets_rcvd = AXIS_RDMA_TREADY & AXIS_RDMA_TVALID & AXIS_RDMA_TLAST;
+
 // The state of the input state-machine
 reg[1:0] ism_state;
 
@@ -128,8 +136,9 @@ wire[ 2 *8-1:0] eth_frame_type;
 wire[ 2 *8-1:0] ip4_ver_dsf, ip4_length, ip4_id, ip4_flags, ip4_ttl_prot, ip4_checksum;
 wire[ 2 *8-1:0] ip4_srcip_h, ip4_srcip_l, ip4_dstip_h, ip4_dstip_l;
 wire[ 2 *8-1:0] udp_src_port, udp_dst_port, udp_length, udp_checksum;
-wire[ 8 *8-1:0] target_addr;
-wire[14 *8-1:0] reserved;
+wire[ 2 *8-1:0] rdma_magic;
+wire[ 8 *8-1:0] rdma_target_addr;
+wire[12 *8-1:0] rdma_reserved;
 
 // The "upd_length" field includes 8 bytes for the UDP header
 localparam UDP_HDR_LEN  = 8;
@@ -166,11 +175,11 @@ assign
     udp_checksum,
     
     // RDMA header fields - 22 bytes
-    target_addr,
-    reserved
+    rdma_magic,
+    rdma_target_addr,
+    rdma_reserved
 
 } = AXIS_RDMA_TDATA_swapped;
-
 
 
 // We will write an entry to the target-address FIFO when:
@@ -329,7 +338,7 @@ target_addr_fifo
    .s_aresetn(resetn),
 
     // The input to this FIFO is derived from packet-headers on AXIS_RDMA
-   .s_axis_tdata ({awlen, target_addr}),
+   .s_axis_tdata ({awlen, rdma_target_addr}),
    .s_axis_tvalid(ftain_tvalid        ),
    .s_axis_tready(ftain_tready        ),
 
