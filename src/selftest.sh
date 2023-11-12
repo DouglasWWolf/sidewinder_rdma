@@ -13,15 +13,15 @@
 p1=$1
 p2=$2
 
+# Ensure that $p1 and $p2 have a value
+test -z $p1 && p1=1
+test -z $p2 && p2=1
+
 # These are the RDMA packet sizes that we can test
 fullset=$((64 | 128 | 256 | 512 | 1024 | 2048 | 4096 | 8192))
 
 # By default, we're going to test all of the packet sizes
 testset=${fullset}
-
-# Ensure that $p1 and $p2 have a value
-test -z $p1 && p1=1
-test -z $p2 && p2=1
 
 # Determine if the user is trying to specify the packet size to test
 test $p1 -eq 64   && testset=64
@@ -120,15 +120,32 @@ enable_ethernet()
   pcireg $REG_ETH0_CONFIG_TX 2
 
   # Wait for PCS alignment
+  echo "Performing PCS alignment"
+  prior_status=0
   aligned=0
-  for n in {1..20}; 
+  for n in {1..60}; 
   do
+
+    # Fetch the alignment status
     status=$(($(read_reg $REG_ETH0_STAT_RX)))
-    if [ $status -eq 3 ]; then
+    
+    # Do we have full PCS alignment?
+    if [ $(($status)) -eq 3 ]; then
       aligned=1
-      break
+    fi    
+
+    # Every time the status changes, display it
+    if [ $status -ne $prior_status ]; then
+      prior_status=$status
+      printf "ETH0_STAT_RX is 0x%04X" $status
+      test $aligned -eq 1 && echo "" || echo " ..."
     fi
-    sleep .2
+
+    # If we're aligned, we're done
+    test $aligned -eq 1 && break;
+    
+    # Otherwise, wait a half-second before trying again
+    sleep .5
   done
 
   # Enable the Ethernet transmitter
@@ -165,7 +182,7 @@ run_test ()
 
   # Allow 25 clock cycles between write transactions so we don't overflow
   # the Ethernet receive FIFO
-  pcireg $REG_WRITE_DELAY 25
+  pcireg $REG_WRITE_DELAY 250000
 
   # Fill RAM with data, using RDMA packets of the specified size.
   # This can be any power of 2 between 64 and 8192
@@ -205,10 +222,6 @@ run_test ()
   fi
 }
 #==============================================================================
-
-# why can't I read 0x500??
-#  Test incoming UDP packets from PC
-#  Change all the qsfp_xxx signal names to eth_xxx
 
 
 # Check to make sure the PCI bus sees our FPGA

@@ -1,7 +1,7 @@
 //Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2021.1 (lin64) Build 3247384 Thu Jun 10 19:36:07 MDT 2021
-//Date        : Sat Nov 11 12:19:50 2023
+//Date        : Sat Nov 11 23:07:39 2023
 //Host        : simtool-5 running 64-bit Ubuntu 20.04.6 LTS
 //Command     : generate_target design_1_wrapper.bd
 //Design      : design_1_wrapper
@@ -12,6 +12,8 @@
 module design_1_wrapper
    (clk_100mhz_clk_n,
     clk_100mhz_clk_p,
+    eth0_up,
+    eth1_up,
     led_pci_link_up,
     pb_rst_n,
     pci_refclk_clk_n,
@@ -26,16 +28,16 @@ module design_1_wrapper
     qsfp0_gt_grx_p,
     qsfp0_gt_gtx_n,
     qsfp0_gt_gtx_p,
-    qsfp0_up,
     qsfp1_clk_clk_n,
     qsfp1_clk_clk_p,
     qsfp1_gt_grx_n,
     qsfp1_gt_grx_p,
     qsfp1_gt_gtx_n,
-    qsfp1_gt_gtx_p,
-    qsfp1_up);
+    qsfp1_gt_gtx_p);
   input [0:0]clk_100mhz_clk_n;
   input [0:0]clk_100mhz_clk_p;
+  output eth0_up;
+  output eth1_up;
   output led_pci_link_up;
   input pb_rst_n;
   input [0:0]pci_refclk_clk_n;
@@ -50,17 +52,17 @@ module design_1_wrapper
   input [3:0]qsfp0_gt_grx_p;
   output [3:0]qsfp0_gt_gtx_n;
   output [3:0]qsfp0_gt_gtx_p;
-  output qsfp0_up;
   input qsfp1_clk_clk_n;
   input qsfp1_clk_clk_p;
   input [3:0]qsfp1_gt_grx_n;
   input [3:0]qsfp1_gt_grx_p;
   output [3:0]qsfp1_gt_gtx_n;
   output [3:0]qsfp1_gt_gtx_p;
-  output qsfp1_up;
 
   wire [0:0]clk_100mhz_clk_n;
   wire [0:0]clk_100mhz_clk_p;
+  wire eth0_up;
+  wire eth1_up;
   wire led_pci_link_up;
   wire pb_rst_n;
   wire [0:0]pci_refclk_clk_n;
@@ -75,18 +77,18 @@ module design_1_wrapper
   wire [3:0]qsfp0_gt_grx_p;
   wire [3:0]qsfp0_gt_gtx_n;
   wire [3:0]qsfp0_gt_gtx_p;
-  wire qsfp0_up;
   wire qsfp1_clk_clk_n;
   wire qsfp1_clk_clk_p;
   wire [3:0]qsfp1_gt_grx_n;
   wire [3:0]qsfp1_gt_grx_p;
   wire [3:0]qsfp1_gt_gtx_n;
   wire [3:0]qsfp1_gt_gtx_p;
-  wire qsfp1_up;
 
   design_1 design_1_i
        (.clk_100mhz_clk_n(clk_100mhz_clk_n),
         .clk_100mhz_clk_p(clk_100mhz_clk_p),
+        .eth0_up(eth0_up),
+        .eth1_up(eth1_up),
         .led_pci_link_up(led_pci_link_up),
         .pb_rst_n(pb_rst_n),
         .pci_refclk_clk_n(pci_refclk_clk_n),
@@ -101,12 +103,10 @@ module design_1_wrapper
         .qsfp0_gt_grx_p(qsfp0_gt_grx_p),
         .qsfp0_gt_gtx_n(qsfp0_gt_gtx_n),
         .qsfp0_gt_gtx_p(qsfp0_gt_gtx_p),
-        .qsfp0_up(qsfp0_up),
         .qsfp1_clk_clk_n(qsfp1_clk_clk_n),
         .qsfp1_clk_clk_p(qsfp1_clk_clk_p),
         .qsfp1_gt_grx_n(qsfp1_gt_grx_n),
         .qsfp1_gt_grx_p(qsfp1_gt_grx_p),
         .qsfp1_gt_gtx_n(qsfp1_gt_gtx_n),
-        .qsfp1_gt_gtx_p(qsfp1_gt_gtx_p),
-        .qsfp1_up(qsfp1_up));
+        .qsfp1_gt_gtx_p(qsfp1_gt_gtx_p));
 endmodule

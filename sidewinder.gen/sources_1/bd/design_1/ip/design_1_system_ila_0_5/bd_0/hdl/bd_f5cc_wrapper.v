@@ -49,6 +49,11 @@ module bd_f5cc_wrapper
     SLOT_1_AXI_wready,
     SLOT_1_AXI_wstrb,
     SLOT_1_AXI_wvalid,
+    SLOT_2_AXIS_tdata,
+    SLOT_2_AXIS_tkeep,
+    SLOT_2_AXIS_tlast,
+    SLOT_2_AXIS_tready,
+    SLOT_2_AXIS_tvalid,
     clk,
     resetn);
   input [511:0]SLOT_0_AXIS_tdata;
@@ -93,6 +98,11 @@ module bd_f5cc_wrapper
   input SLOT_1_AXI_wready;
   input [63:0]SLOT_1_AXI_wstrb;
   input SLOT_1_AXI_wvalid;
+  input [511:0]SLOT_2_AXIS_tdata;
+  input [63:0]SLOT_2_AXIS_tkeep;
+  input SLOT_2_AXIS_tlast;
+  input SLOT_2_AXIS_tready;
+  input SLOT_2_AXIS_tvalid;
   input clk;
   input resetn;
 
@@ -138,6 +148,11 @@ module bd_f5cc_wrapper
   wire SLOT_1_AXI_wready;
   wire [63:0]SLOT_1_AXI_wstrb;
   wire SLOT_1_AXI_wvalid;
+  wire [511:0]SLOT_2_AXIS_tdata;
+  wire [63:0]SLOT_2_AXIS_tkeep;
+  wire SLOT_2_AXIS_tlast;
+  wire SLOT_2_AXIS_tready;
+  wire SLOT_2_AXIS_tvalid;
   wire clk;
   wire resetn;
 
@@ -184,6 +199,11 @@ module bd_f5cc_wrapper
         .SLOT_1_AXI_wready(SLOT_1_AXI_wready),
         .SLOT_1_AXI_wstrb(SLOT_1_AXI_wstrb),
         .SLOT_1_AXI_wvalid(SLOT_1_AXI_wvalid),
+        .SLOT_2_AXIS_tdata(SLOT_2_AXIS_tdata),
+        .SLOT_2_AXIS_tkeep(SLOT_2_AXIS_tkeep),
+        .SLOT_2_AXIS_tlast(SLOT_2_AXIS_tlast),
+        .SLOT_2_AXIS_tready(SLOT_2_AXIS_tready),
+        .SLOT_2_AXIS_tvalid(SLOT_2_AXIS_tvalid),
         .clk(clk),
         .resetn(resetn));
 endmodule

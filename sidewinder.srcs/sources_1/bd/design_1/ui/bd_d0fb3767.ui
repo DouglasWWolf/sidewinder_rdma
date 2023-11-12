@@ -32,14 +32,14 @@ preplace inst tx_data_ila -pg 1 -lvl 1 -x 290 -y 870 -defaultsOSRD -pinDir SLOT_
 preplace inst rx_data_ila -pg 1 -lvl 2 -x 800 -y 160 -defaultsOSRD -pinDir SLOT_0_AXIS left -pinY SLOT_0_AXIS 0L -pinDir SLOT_1_AXIS left -pinY SLOT_1_AXIS 20L -pinDir clk left -pinY clk 40L -pinDir resetn left -pinY resetn 60L
 preplace inst axi_eth_status -pg 1 -lvl 2 -x 800 -y 360 -swap {0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 23 24 25 20 22 21 28 26 27} -defaultsOSRD -pinDir S_AXI left -pinY S_AXI 0L -pinDir axi_clk left -pinY axi_clk 80L -pinDir axi_resetn left -pinY axi_resetn 100L -pinDir rx_clk left -pinY rx_clk 120L -pinDir ss0_channel_up left -pinY ss0_channel_up 20L -pinDir ss0_overrun left -pinY ss0_overrun 60L -pinDir ss0_pkt_dropped left -pinY ss0_pkt_dropped 40L -pinDir ss1_channel_up left -pinY ss1_channel_up 180L -pinDir ss1_overrun left -pinY ss1_overrun 140L -pinDir ss1_pkt_dropped left -pinY ss1_pkt_dropped 160L
 preplace netloc aclk_1 1 0 2 60 380 480J
+preplace netloc ch0_ethernet_rx_resetn 1 1 2 460 600 NJ
+preplace netloc clock_1 1 0 1 80 270n
 preplace netloc eth0_channel_up 1 1 2 580 640 NJ
-preplace netloc eth1_channel_up 1 1 2 680 660 NJ
 preplace netloc eth0_overrun 1 1 1 500 310n
 preplace netloc eth0_pkt_dropped 1 1 1 540 290n
-preplace netloc ch0_ethernet_rx_resetn 1 1 2 460 600 NJ
+preplace netloc eth1_channel_up 1 1 2 680 660 NJ
 preplace netloc eth1_overrun 1 1 1 640 500n
 preplace netloc eth1_pkt_dropped 1 1 1 660 520n
-preplace netloc clock_1 1 0 1 80 270n
 preplace netloc qsfp0_ethernet_gt_rxusrclk2 1 1 2 620 620 NJ
 preplace netloc reset_in_1 1 0 1 120 250n
 preplace netloc resetn_250mhz_1 1 0 2 20 400 520J
