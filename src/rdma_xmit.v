@@ -57,9 +57,6 @@ module rdma_xmit #
     // Width of an AXI address in bits
     parameter ADDR_WBITS = ADDR_WBYTS * 8,
 
-    // The number of bytes in the RDMA header fields
-    parameter RDMA_HDR_FLDS = 8,
-
     // Last octet of the source MAC address
     parameter[ 7:0] SRC_MAC = 2,    
     
@@ -75,9 +72,12 @@ module rdma_xmit #
     parameter[ 7:0] DST_IP2 = 1,
     parameter[ 7:0] DST_IP3 = 255,
     
-    // The source and destination UDP ports
-    parameter[15:0] SRC_PORT = 1000,
-    parameter[15:0] DST_PORT = 32002,
+    // The source UDP ports
+    parameter[15:0] SOURCE_PORT = 1000,
+       
+    // The destination port on the remote server.  
+    // << THIS MUST MATCH "REMOTE_SERVER_PORT" in rdma_pkt_filter.v >>>
+    parameter[15:0] REMOTE_SERVER_PORT = 32002,
 
     // This must be at least as large as the number of the smallest packets that
     // can fit into the data FIFO.   Min is 16.  
@@ -175,6 +175,8 @@ wire       fplout_tvalid;
 wire       fplout_tready;
 //==========================================================================
 
+// The number of bytes in the RDMA header fields that we care about
+parameter RDMA_HDR_FLDS = 8; 
 
 // The length (in bytes) of a standard header for an IP packet
 localparam IP_HDR_LEN = 20;
@@ -204,8 +206,8 @@ localparam[15:0] ip4_dstip_h    = {DST_IP0, DST_IP1};
 localparam[15:0] ip4_dstip_l    = {DST_IP2, DST_IP3};
 
 // The statically declared UDP header fields
-localparam[15:0] udp_src_port   = SRC_PORT;
-localparam[15:0] udp_dst_port   = DST_PORT;
+localparam[15:0] udp_src_port   = SOURCE_PORT;
+localparam[15:0] udp_dst_port   = REMOTE_SERVER_PORT;
 localparam[15:0] udp_checksum   = 0;
 
 // 2 bytes of magic number

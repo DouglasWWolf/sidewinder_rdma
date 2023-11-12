@@ -18,10 +18,12 @@
 
 module rdma_pkt_filter #
 (
-    parameter DATA_WBITS        = 512,
-    parameter DATA_WBYTS        = (DATA_WBITS / 8),
-    parameter RDMA_DEST_PORT1   = 11111,
-    parameter RDMA_DEST_PORT2   = 32002
+    parameter DATA_WBITS         = 512,
+    parameter DATA_WBYTS         = (DATA_WBITS / 8),
+    parameter LOCAL_SERVER_PORT  = 111111,
+
+    // <<< This must match REMOTE_SERVER_PORT in rdma_xmit.v !! >>>
+    parameter REMOTE_SERVER_PORT = 32002    
 )
 (
     input wire  clk, resetn,
@@ -121,7 +123,7 @@ assign
 // The first cycle of a packet is considered an RDMA packet if the protocol is
 // UDP (i.e., 17) and the port number is one of the RDMA UDP port numbers
 wire is_rdma_imm = (ip4_ttl_prot[7:0] == 17)
-                 & (udp_dst_port      == RDMA_DEST_PORT1 || udp_dst_port == RDMA_DEST_PORT2)
+                 & (udp_dst_port      == LOCAL_SERVER_PORT || udp_dst_port == REMOTE_SERVER_PORT)
                  & (rdma_magic        == RDMA_MAGIC);
 reg  is_rdma_reg;
 

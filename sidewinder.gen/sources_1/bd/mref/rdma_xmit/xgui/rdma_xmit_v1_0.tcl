@@ -10,15 +10,14 @@ proc init_gui { IPINST } {
   ipgui::add_param $IPINST -name "DST_IP1" -parent ${Page_0}
   ipgui::add_param $IPINST -name "DST_IP2" -parent ${Page_0}
   ipgui::add_param $IPINST -name "DST_IP3" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "DST_PORT" -parent ${Page_0}
   ipgui::add_param $IPINST -name "MAX_PACKET_COUNT" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "RDMA_HDR_FLDS" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "REMOTE_SERVER_PORT" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "SOURCE_PORT" -parent ${Page_0}
   ipgui::add_param $IPINST -name "SRC_IP0" -parent ${Page_0}
   ipgui::add_param $IPINST -name "SRC_IP1" -parent ${Page_0}
   ipgui::add_param $IPINST -name "SRC_IP2" -parent ${Page_0}
   ipgui::add_param $IPINST -name "SRC_IP3" -parent ${Page_0}
   ipgui::add_param $IPINST -name "SRC_MAC" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "SRC_PORT" -parent ${Page_0}
   ipgui::add_param $IPINST -name "STREAM_WBITS" -parent ${Page_0}
   ipgui::add_param $IPINST -name "STREAM_WBYTS" -parent ${Page_0}
 
@@ -88,15 +87,6 @@ proc validate_PARAM_VALUE.DST_IP3 { PARAM_VALUE.DST_IP3 } {
 	return true
 }
 
-proc update_PARAM_VALUE.DST_PORT { PARAM_VALUE.DST_PORT } {
-	# Procedure called to update DST_PORT when any of the dependent parameters in the arguments change
-}
-
-proc validate_PARAM_VALUE.DST_PORT { PARAM_VALUE.DST_PORT } {
-	# Procedure called to validate DST_PORT
-	return true
-}
-
 proc update_PARAM_VALUE.MAX_PACKET_COUNT { PARAM_VALUE.MAX_PACKET_COUNT } {
 	# Procedure called to update MAX_PACKET_COUNT when any of the dependent parameters in the arguments change
 }
@@ -106,12 +96,21 @@ proc validate_PARAM_VALUE.MAX_PACKET_COUNT { PARAM_VALUE.MAX_PACKET_COUNT } {
 	return true
 }
 
-proc update_PARAM_VALUE.RDMA_HDR_FLDS { PARAM_VALUE.RDMA_HDR_FLDS } {
-	# Procedure called to update RDMA_HDR_FLDS when any of the dependent parameters in the arguments change
+proc update_PARAM_VALUE.REMOTE_SERVER_PORT { PARAM_VALUE.REMOTE_SERVER_PORT } {
+	# Procedure called to update REMOTE_SERVER_PORT when any of the dependent parameters in the arguments change
 }
 
-proc validate_PARAM_VALUE.RDMA_HDR_FLDS { PARAM_VALUE.RDMA_HDR_FLDS } {
-	# Procedure called to validate RDMA_HDR_FLDS
+proc validate_PARAM_VALUE.REMOTE_SERVER_PORT { PARAM_VALUE.REMOTE_SERVER_PORT } {
+	# Procedure called to validate REMOTE_SERVER_PORT
+	return true
+}
+
+proc update_PARAM_VALUE.SOURCE_PORT { PARAM_VALUE.SOURCE_PORT } {
+	# Procedure called to update SOURCE_PORT when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.SOURCE_PORT { PARAM_VALUE.SOURCE_PORT } {
+	# Procedure called to validate SOURCE_PORT
 	return true
 }
 
@@ -160,15 +159,6 @@ proc validate_PARAM_VALUE.SRC_MAC { PARAM_VALUE.SRC_MAC } {
 	return true
 }
 
-proc update_PARAM_VALUE.SRC_PORT { PARAM_VALUE.SRC_PORT } {
-	# Procedure called to update SRC_PORT when any of the dependent parameters in the arguments change
-}
-
-proc validate_PARAM_VALUE.SRC_PORT { PARAM_VALUE.SRC_PORT } {
-	# Procedure called to validate SRC_PORT
-	return true
-}
-
 proc update_PARAM_VALUE.STREAM_WBITS { PARAM_VALUE.STREAM_WBITS } {
 	# Procedure called to update STREAM_WBITS when any of the dependent parameters in the arguments change
 }
@@ -206,11 +196,6 @@ proc update_MODELPARAM_VALUE.ADDR_WBYTS { MODELPARAM_VALUE.ADDR_WBYTS PARAM_VALU
 proc update_MODELPARAM_VALUE.ADDR_WBITS { MODELPARAM_VALUE.ADDR_WBITS PARAM_VALUE.ADDR_WBITS } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
 	set_property value [get_property value ${PARAM_VALUE.ADDR_WBITS}] ${MODELPARAM_VALUE.ADDR_WBITS}
-}
-
-proc update_MODELPARAM_VALUE.RDMA_HDR_FLDS { MODELPARAM_VALUE.RDMA_HDR_FLDS PARAM_VALUE.RDMA_HDR_FLDS } {
-	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
-	set_property value [get_property value ${PARAM_VALUE.RDMA_HDR_FLDS}] ${MODELPARAM_VALUE.RDMA_HDR_FLDS}
 }
 
 proc update_MODELPARAM_VALUE.SRC_MAC { MODELPARAM_VALUE.SRC_MAC PARAM_VALUE.SRC_MAC } {
@@ -258,14 +243,14 @@ proc update_MODELPARAM_VALUE.DST_IP3 { MODELPARAM_VALUE.DST_IP3 PARAM_VALUE.DST_
 	set_property value [get_property value ${PARAM_VALUE.DST_IP3}] ${MODELPARAM_VALUE.DST_IP3}
 }
 
-proc update_MODELPARAM_VALUE.SRC_PORT { MODELPARAM_VALUE.SRC_PORT PARAM_VALUE.SRC_PORT } {
+proc update_MODELPARAM_VALUE.SOURCE_PORT { MODELPARAM_VALUE.SOURCE_PORT PARAM_VALUE.SOURCE_PORT } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
-	set_property value [get_property value ${PARAM_VALUE.SRC_PORT}] ${MODELPARAM_VALUE.SRC_PORT}
+	set_property value [get_property value ${PARAM_VALUE.SOURCE_PORT}] ${MODELPARAM_VALUE.SOURCE_PORT}
 }
 
-proc update_MODELPARAM_VALUE.DST_PORT { MODELPARAM_VALUE.DST_PORT PARAM_VALUE.DST_PORT } {
+proc update_MODELPARAM_VALUE.REMOTE_SERVER_PORT { MODELPARAM_VALUE.REMOTE_SERVER_PORT PARAM_VALUE.REMOTE_SERVER_PORT } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
-	set_property value [get_property value ${PARAM_VALUE.DST_PORT}] ${MODELPARAM_VALUE.DST_PORT}
+	set_property value [get_property value ${PARAM_VALUE.REMOTE_SERVER_PORT}] ${MODELPARAM_VALUE.REMOTE_SERVER_PORT}
 }
 
 proc update_MODELPARAM_VALUE.MAX_PACKET_COUNT { MODELPARAM_VALUE.MAX_PACKET_COUNT PARAM_VALUE.MAX_PACKET_COUNT } {

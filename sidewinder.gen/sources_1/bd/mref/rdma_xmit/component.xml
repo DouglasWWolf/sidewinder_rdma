@@ -407,7 +407,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>dfea0409</spirit:value>
+            <spirit:value>713b3a2c</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -420,7 +420,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>dfea0409</spirit:value>
+            <spirit:value>713b3a2c</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -1153,11 +1153,6 @@
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.ADDR_WBITS" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.ADDR_WBYTS&apos;)) * 8)">64</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
-        <spirit:name>RDMA_HDR_FLDS</spirit:name>
-        <spirit:displayName>Rdma Hdr Flds</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.RDMA_HDR_FLDS">8</spirit:value>
-      </spirit:modelParameter>
-      <spirit:modelParameter spirit:dataType="integer">
         <spirit:name>SRC_MAC</spirit:name>
         <spirit:displayName>Src Mac</spirit:displayName>
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.SRC_MAC">2</spirit:value>
@@ -1203,14 +1198,14 @@
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.DST_IP3">255</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
-        <spirit:name>SRC_PORT</spirit:name>
-        <spirit:displayName>Src Port</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.SRC_PORT">1000</spirit:value>
+        <spirit:name>SOURCE_PORT</spirit:name>
+        <spirit:displayName>Source Port</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.SOURCE_PORT">1000</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
-        <spirit:name>DST_PORT</spirit:name>
-        <spirit:displayName>Dst Port</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.DST_PORT">32002</spirit:value>
+        <spirit:name>REMOTE_SERVER_PORT</spirit:name>
+        <spirit:displayName>Remote Server Port</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.REMOTE_SERVER_PORT">32002</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
         <spirit:name>MAX_PACKET_COUNT</spirit:name>
@@ -1237,7 +1232,7 @@
       <spirit:file>
         <spirit:name>xgui/rdma_xmit_v1_0.tcl</spirit:name>
         <spirit:fileType>tclSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_88577325</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_c37832b4</spirit:userFileType>
         <spirit:userFileType>XGUI_VERSION_2</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
@@ -1263,11 +1258,6 @@
       <spirit:name>ADDR_WBITS</spirit:name>
       <spirit:displayName>Addr Wbits</spirit:displayName>
       <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.ADDR_WBITS">64</spirit:value>
-    </spirit:parameter>
-    <spirit:parameter>
-      <spirit:name>RDMA_HDR_FLDS</spirit:name>
-      <spirit:displayName>Rdma Hdr Flds</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.RDMA_HDR_FLDS">8</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>SRC_MAC</spirit:name>
@@ -1315,14 +1305,14 @@
       <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.DST_IP3">255</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
-      <spirit:name>SRC_PORT</spirit:name>
-      <spirit:displayName>Src Port</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.SRC_PORT">1000</spirit:value>
+      <spirit:name>SOURCE_PORT</spirit:name>
+      <spirit:displayName>Source Port</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.SOURCE_PORT">1000</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
-      <spirit:name>DST_PORT</spirit:name>
-      <spirit:displayName>Dst Port</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.DST_PORT">32002</spirit:value>
+      <spirit:name>REMOTE_SERVER_PORT</spirit:name>
+      <spirit:displayName>Remote Server Port</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.REMOTE_SERVER_PORT">32002</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>MAX_PACKET_COUNT</spirit:name>
@@ -1354,7 +1344,7 @@
         <xilinx:designToolContext>IPI</xilinx:designToolContext>
       </xilinx:designToolContexts>
       <xilinx:coreRevision>1</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2023-11-12T11:22:44Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2023-11-12T20:28:55Z</xilinx:coreCreationDateTime>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2021.1</xilinx:xilinxVersion>

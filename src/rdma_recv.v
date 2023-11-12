@@ -30,10 +30,8 @@ module rdma_recv #
 (
     input wire  clk, resetn,
 
-    // This will go high on any clock cycle that we receive the last 
-    // cycle of a packet.   It is convenient for counting the number of 
-    // packets received.
-    output inc_packets_rcvd,
+    // Keeps a count of the total number of packets received
+    output reg[63:0] packets_rcvd,
 
     //==========================================================================
     //                     AXI Stream for incoming RDMA packets
@@ -97,9 +95,6 @@ module rdma_recv #
 
 
 );
-
-// "inc_packets_rcvd" is high on any cycle when we receive the end-of-packet
-assign inc_packets_rcvd = AXIS_RDMA_TREADY & AXIS_RDMA_TVALID & AXIS_RDMA_TLAST;
 
 // The state of the input state-machine
 reg[1:0] ism_state;
@@ -255,6 +250,16 @@ end
 //====================================================================================
 
 
+//====================================================================================
+// This block keeps a count of the total number of packet received
+//====================================================================================
+always @(posedge clk) begin
+    if (resetn == 0)
+        packets_rcvd <= 0;
+    else if (AXIS_RDMA_TVALID & AXIS_RDMA_TREADY & AXIS_RDMA_TLAST)
+        packets_rcvd <= packets_rcvd + 1;
+end
+//====================================================================================
 
 
 

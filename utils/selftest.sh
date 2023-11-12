@@ -57,6 +57,7 @@ REG_INITIAL_VALUE=$((BASE_ADDR +  0))
   REG_START_WRITE=$((BASE_ADDR +  8))
     REG_READ_BACK=$((BASE_ADDR + 12))
  REG_NARROW_WRITE=$((BASE_ADDR + 16))
+ REG_PACKETS_RCVD=$((BASE_ADDR + 20))
 
 
 # Base address of Xilinx 100G Ethernet registers
@@ -208,7 +209,8 @@ run_test ()
     status=$(($(read_reg $REG_START_WRITE)))
     if [ $status -eq 1 ]; then
       break;
-    fi   
+    fi
+    sleep .01   
   done
   
   # Read back RAM 
@@ -220,7 +222,8 @@ run_test ()
     status=$(($(read_reg $REG_READ_BACK)))
     if [ $status -eq 1 ] || [ $status -eq 3 ]; then
       break;
-    fi   
+    fi
+    sleep .01   
   done
     
   # Determine whether the test passed or failed.  If the

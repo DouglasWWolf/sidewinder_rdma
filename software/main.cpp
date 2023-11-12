@@ -10,6 +10,7 @@ UDPSock server;
 UDPSock sender;
 
 const char* dest_ip = "10.1.1.255";
+int server_port = 32002;
 
 char buffer[64 * 1024];
 
@@ -28,8 +29,11 @@ int main(int argc, char** argv)
     // If there's an IP address on the command line, use it.
     if (argc > 1) dest_ip = argv[1];
 
+    // If there's a UDP port on the command line, use it
+    if (argc > 2) server_port = atoi(argv[2]);
+
     // Create the UDP server socket
-    if (!server.create_server(32002))
+    if (!server.create_server(server_port))
     {
         printf("Can't create server\n");
         exit(1);        

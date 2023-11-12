@@ -25,6 +25,8 @@ module data_generator #
     output[`M_AXI_DATA_WIDTH-1:0] expected_rdata,
     output reg                    selftest_ok,
 
+    input[63:0] packets_rcvd,
+
     //======================  An AXI Master Interface  =========================
 
     // "Specify write address"         -- Master --    -- Slave --
@@ -185,6 +187,9 @@ reg[1:0]    ashi_rresp;     // Output: Read-response (OKAY, DECERR, SLVERR);
 wire        ashi_ridle;     // Output: 1 = Read state machine is idle
 //==========================================================================
 
+// When a user "clears" the "packets received" register, it records the current count here
+reg[63:0] prior_packets_rcvd;
+
 // The state of the state-machines that handle AXI4-Lite read and AXI4-Lite write
 reg[3:0] axi4_write_state, axi4_read_state;
 
@@ -228,6 +233,7 @@ localparam REG_WRITE_DELAY   = 1;
 localparam REG_START_WRITE   = 2;
 localparam REG_READ_BACK     = 3;
 localparam REG_NARROW_WRITE  = 4;
+localparam REG_PACKETS_RCVD  = 5;
 
 //==========================================================================
 // This state machine handles AXI4-Lite write requests
@@ -243,9 +249,10 @@ always @(posedge clk) begin
     
     // If we're in reset, initialize important registers
     if (resetn == 0) begin
-        axi4_write_state <= 0;
-        initial_value    <= 1;
-        write_delay      <= 0;
+        axi4_write_state   <= 0;
+        initial_value      <= 1;
+        write_delay        <= 0;
+        prior_packets_rcvd <= 0;
 
     // If we're not in reset, and a write-request has occured...        
     end else case (axi4_write_state)
@@ -346,6 +353,8 @@ always @(posedge clk) begin
                     REG_READ_BACK:
                         start_mode <= SM_READBACK;
 
+                    REG_PACKETS_RCVD:
+                        prior_packets_rcvd <= packets_rcvd;
         
                     // Writes to any other register are a decode-error
                     default: ashi_wresp <= DECERR;
@@ -387,6 +396,7 @@ always @(posedge clk) begin
             REG_START_WRITE  : ashi_rdata <= (start_mode == 0 && bsm_state == 0);
             REG_NARROW_WRITE : ashi_rdata <= byte_count;
             REG_READ_BACK    : ashi_rdata <= {selftest_ok, rcsm_idle};
+            REG_PACKETS_RCVD : ashi_rdata <= (packets_rcvd - prior_packets_rcvd);            
             
             // Reads of any other register are a decode-error
             default: ashi_rresp <= DECERR;
