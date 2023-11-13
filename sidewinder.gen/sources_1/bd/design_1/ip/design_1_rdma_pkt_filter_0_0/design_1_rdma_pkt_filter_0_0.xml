@@ -629,14 +629,14 @@
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.DATA_WBYTS" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.DATA_WBITS&apos;)) / 8)">64</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
-        <spirit:name>RDMA_DEST_PORT1</spirit:name>
-        <spirit:displayName>Rdma Dest Port1</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.RDMA_DEST_PORT1">11111</spirit:value>
+        <spirit:name>LOCAL_SERVER_PORT</spirit:name>
+        <spirit:displayName>Local Server Port</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.LOCAL_SERVER_PORT">111111</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
-        <spirit:name>RDMA_DEST_PORT2</spirit:name>
-        <spirit:displayName>Rdma Dest Port2</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.RDMA_DEST_PORT2">32002</spirit:value>
+        <spirit:name>REMOTE_SERVER_PORT</spirit:name>
+        <spirit:displayName>Remote Server Port</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.REMOTE_SERVER_PORT">32002</spirit:value>
       </spirit:modelParameter>
     </spirit:modelParameters>
   </spirit:model>
@@ -660,14 +660,14 @@
       <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.DATA_WBYTS">64</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
-      <spirit:name>RDMA_DEST_PORT1</spirit:name>
-      <spirit:displayName>Rdma Dest Port1</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.RDMA_DEST_PORT1">11111</spirit:value>
+      <spirit:name>LOCAL_SERVER_PORT</spirit:name>
+      <spirit:displayName>Local Server Port</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.LOCAL_SERVER_PORT">111111</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
-      <spirit:name>RDMA_DEST_PORT2</spirit:name>
-      <spirit:displayName>Rdma Dest Port2</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.RDMA_DEST_PORT2">32002</spirit:value>
+      <spirit:name>REMOTE_SERVER_PORT</spirit:name>
+      <spirit:displayName>Remote Server Port</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.REMOTE_SERVER_PORT">32002</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>Component_Name</spirit:name>

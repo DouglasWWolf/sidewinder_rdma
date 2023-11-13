@@ -176,7 +176,7 @@ wire       fplout_tready;
 //==========================================================================
 
 // The number of bytes in the RDMA header fields that we care about
-parameter RDMA_HDR_FLDS = 8; 
+localparam RDMA_HDR_FLDS = 8; 
 
 // The length (in bytes) of a standard header for an IP packet
 localparam IP_HDR_LEN = 20;
