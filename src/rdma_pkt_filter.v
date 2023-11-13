@@ -20,7 +20,7 @@ module rdma_pkt_filter #
 (
     parameter DATA_WBITS         = 512,
     parameter DATA_WBYTS         = (DATA_WBITS / 8),
-    parameter LOCAL_SERVER_PORT  = 111111,
+    parameter LOCAL_SERVER_PORT  = 11111,
 
     // <<< This must match REMOTE_SERVER_PORT in rdma_xmit.v !! >>>
     parameter REMOTE_SERVER_PORT = 32002    
