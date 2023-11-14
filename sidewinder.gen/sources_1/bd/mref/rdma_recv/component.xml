@@ -402,7 +402,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>465f6c88</spirit:value>
+            <spirit:value>0d5827ab</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -415,7 +415,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>465f6c88</spirit:value>
+            <spirit:value>0d5827ab</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -1120,16 +1120,6 @@
         <spirit:displayName>Addr Wbits</spirit:displayName>
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.ADDR_WBITS">64</spirit:value>
       </spirit:modelParameter>
-      <spirit:modelParameter spirit:dataType="integer">
-        <spirit:name>RDMA_HDR_BYTES</spirit:name>
-        <spirit:displayName>Rdma Hdr Bytes</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.RDMA_HDR_BYTES">9</spirit:value>
-      </spirit:modelParameter>
-      <spirit:modelParameter spirit:dataType="integer">
-        <spirit:name>PACKET_FIFO_DEPTH</spirit:name>
-        <spirit:displayName>Packet Fifo Depth</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.PACKET_FIFO_DEPTH">1024</spirit:value>
-      </spirit:modelParameter>
     </spirit:modelParameters>
   </spirit:model>
   <spirit:choices>
@@ -1145,7 +1135,7 @@
       <spirit:file>
         <spirit:name>xgui/rdma_recv_v1_0.tcl</spirit:name>
         <spirit:fileType>tclSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_a8731e44</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_ca37db6f</spirit:userFileType>
         <spirit:userFileType>XGUI_VERSION_2</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
@@ -1168,16 +1158,6 @@
       <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.ADDR_WBITS">64</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
-      <spirit:name>RDMA_HDR_BYTES</spirit:name>
-      <spirit:displayName>Rdma Hdr Bytes</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.RDMA_HDR_BYTES">9</spirit:value>
-    </spirit:parameter>
-    <spirit:parameter>
-      <spirit:name>PACKET_FIFO_DEPTH</spirit:name>
-      <spirit:displayName>Packet Fifo Depth</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.PACKET_FIFO_DEPTH">1024</spirit:value>
-    </spirit:parameter>
-    <spirit:parameter>
       <spirit:name>Component_Name</spirit:name>
       <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Component_Name" spirit:order="1">rdma_recv_v1_0</spirit:value>
     </spirit:parameter>
@@ -1197,7 +1177,7 @@
         <xilinx:designToolContext>IPI</xilinx:designToolContext>
       </xilinx:designToolContexts>
       <xilinx:coreRevision>1</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2023-11-12T20:28:54Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2023-11-14T10:01:44Z</xilinx:coreCreationDateTime>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2021.1</xilinx:xilinxVersion>

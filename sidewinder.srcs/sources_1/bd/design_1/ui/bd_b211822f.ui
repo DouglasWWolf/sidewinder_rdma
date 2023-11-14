@@ -16,16 +16,16 @@ preplace inst rdma_ila -pg 1 -lvl 3 -x 780 -y 170 -swap {6 1 2 3 4 5 0 7 8 9 10 
 preplace inst rdma_packet_filter -pg 1 -lvl 1 -x 170 -y 90 -defaultsOSRD -pinDir AXIS_IN left -pinY AXIS_IN 0L -pinDir AXIS_OUT right -pinY AXIS_OUT 0R -pinDir clk left -pinY clk 20L -pinDir resetn left -pinY resetn 40L
 preplace inst rdma_recv -pg 1 -lvl 2 -x 490 -y 70 -defaultsOSRD -pinDir AXIS_RDMA left -pinY AXIS_RDMA 20L -pinDir M_AXI right -pinY M_AXI 0R -pinDir clk left -pinY clk 40L -pinDir resetn left -pinY resetn 60L -pinBusDir packets_rcvd right -pinBusY packets_rcvd 20R
 preplace netloc clk_1 1 0 3 20 30 320 10 680J
-preplace netloc resetn_1 1 0 3 20 210 320 210 660J
 preplace netloc rdma_recv_packets_rcvd 1 2 2 NJ 90 NJ
+preplace netloc resetn_1 1 0 3 20 210 320 210 660J
 preplace netloc M_AXI 1 2 2 660 110 NJ
 preplace netloc packet_filter_in 1 0 3 40 190 NJ 190 NJ
 preplace netloc packet_filter_out 1 1 2 300 230 NJ
 levelinfo -pg 1 0 170 490 780 900
 pagesize -pg 1 -db -bbox -sgen -140 0 1090 330
 ",
-   "No Loops_ScaleFactor":"0.941756",
-   "No Loops_TopLeft":"-132,-170",
+   "No Loops_ScaleFactor":"1.0",
+   "No Loops_TopLeft":"-759,-504",
    "guistr":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
 #  -string -flagsOSRD
 preplace port AXIS_RDMA -pg 1 -lvl 0 -x -50 -y 50 -defaultsOSRD

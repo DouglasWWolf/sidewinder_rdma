@@ -11,8 +11,8 @@ preplace port RDMA_OUT -pg 1 -lvl 2 -x 360 -y 100 -defaultsOSRD
 preplace port S_AXI_IN -pg 1 -lvl 0 -x 0 -y 60 -defaultsOSRD
 preplace port port-id_resetn -pg 1 -lvl 0 -x 0 -y 100 -defaultsOSRD
 preplace port port-id_clk -pg 1 -lvl 0 -x 0 -y 80 -defaultsOSRD
-preplace inst rdma_xmit -pg 1 -lvl 1 -x 200 -y 60 -defaultsOSRD -pinDir AXIS_TX right -pinY AXIS_TX 40R -pinDir S_AXI left -pinY S_AXI 0L -pinDir clk left -pinY clk 20L -pinDir resetn left -pinY resetn 40L
 preplace inst rdma_ila -pg 1 -lvl 1 -x 200 -y 200 -defaultsOSRD -pinDir SLOT_0_AXI left -pinY SLOT_0_AXI 0L -pinDir SLOT_1_AXIS right -pinY SLOT_1_AXIS 0R -pinDir clk left -pinY clk 20L -pinDir resetn left -pinY resetn 40L
+preplace inst rdma_xmit -pg 1 -lvl 1 -x 200 -y 60 -defaultsOSRD -pinDir AXIS_TX right -pinY AXIS_TX 40R -pinDir S_AXI left -pinY S_AXI 0L -pinDir clk left -pinY clk 20L -pinDir resetn left -pinY resetn 40L
 preplace netloc clk_1 1 0 1 40 80n
 preplace netloc resetn_1 1 0 1 20 100n
 preplace netloc RDMA_OUT 1 1 1 340 100n

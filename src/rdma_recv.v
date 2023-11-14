@@ -23,9 +23,7 @@ module rdma_recv #
 (
     parameter DATA_WBITS        = 512,
     parameter DATA_WBYTS        = (DATA_WBITS / 8),
-    parameter ADDR_WBITS        = 64,
-    parameter RDMA_HDR_BYTES    = 9,
-    parameter PACKET_FIFO_DEPTH = 1024
+    parameter ADDR_WBITS        = 64
 )
 (
     input wire  clk, resetn,
@@ -95,6 +93,13 @@ module rdma_recv #
 
 
 );
+
+// 8 bytes of address, plus one AWLEN byte
+localparam RDMA_HDR_BYTES = 9; 
+
+// This specifies how many entries can be stored in the FIFOS that
+// buffer our incoming AXI write requests
+localparam PACKET_FIFO_DEPTH = 1024;
 
 // The state of the input state-machine
 reg[1:0] ism_state;
