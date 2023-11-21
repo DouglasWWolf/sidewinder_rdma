@@ -38,10 +38,6 @@
         fpdout is the output of the packet-data FIFO
         ftaout is the output of the rdma-header FIFO
 
-        AXIS_TX is the output stream containing an *sparse* RDMA packet.  It is the job of
-        a downstream module (rdma_pack.v) to byte-pack the sparse RDMA packet into a fully
-        packed AXI stream.
-
 */
 module rdma_xmit # 
 (

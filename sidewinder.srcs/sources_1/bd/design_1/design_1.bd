@@ -3091,14 +3091,6 @@
                   "HAS_TLAST": {
                     "value": "1",
                     "value_src": "constant"
-                  },
-                  "FREQ_HZ": {
-                    "value": "250000000",
-                    "value_src": "user_prop"
-                  },
-                  "CLK_DOMAIN": {
-                    "value": "design_1_xdma_0_0_axi_aclk",
-                    "value_src": "default_prop"
                   }
                 },
                 "port_maps": {
@@ -3140,10 +3132,6 @@
                   "PROTOCOL": {
                     "value": "AXI4",
                     "value_src": "constant"
-                  },
-                  "FREQ_HZ": {
-                    "value": "250000000",
-                    "value_src": "user_prop"
                   },
                   "ID_WIDTH": {
                     "value": "4",
@@ -3228,10 +3216,6 @@
                   "MAX_BURST_LENGTH": {
                     "value": "256",
                     "value_src": "auto"
-                  },
-                  "CLK_DOMAIN": {
-                    "value": "design_1_xdma_0_0_axi_aclk",
-                    "value_src": "default_prop"
                   }
                 },
                 "port_maps": {
@@ -3426,14 +3410,6 @@
                   "ASSOCIATED_RESET": {
                     "value": "resetn",
                     "value_src": "constant"
-                  },
-                  "FREQ_HZ": {
-                    "value": "250000000",
-                    "value_src": "user_prop"
-                  },
-                  "CLK_DOMAIN": {
-                    "value": "design_1_xdma_0_0_axi_aclk",
-                    "value_src": "default_prop"
                   }
                 }
               },
@@ -3798,6 +3774,14 @@
                   "HAS_TLAST": {
                     "value": "1",
                     "value_src": "constant"
+                  },
+                  "FREQ_HZ": {
+                    "value": "250000000",
+                    "value_src": "user_prop"
+                  },
+                  "CLK_DOMAIN": {
+                    "value": "design_1_xdma_0_0_axi_aclk",
+                    "value_src": "default_prop"
                   }
                 },
                 "port_maps": {
@@ -3839,6 +3823,10 @@
                   "PROTOCOL": {
                     "value": "AXI4",
                     "value_src": "constant"
+                  },
+                  "FREQ_HZ": {
+                    "value": "250000000",
+                    "value_src": "user_prop"
                   },
                   "ID_WIDTH": {
                     "value": "4",
@@ -3923,6 +3911,10 @@
                   "MAX_BURST_LENGTH": {
                     "value": "256",
                     "value_src": "auto"
+                  },
+                  "CLK_DOMAIN": {
+                    "value": "design_1_xdma_0_0_axi_aclk",
+                    "value_src": "default_prop"
                   },
                   "master_id": {
                     "value": "2"
@@ -4126,6 +4118,14 @@
                   "ASSOCIATED_RESET": {
                     "value": "resetn",
                     "value_src": "constant"
+                  },
+                  "FREQ_HZ": {
+                    "value": "250000000",
+                    "value_src": "user_prop"
+                  },
+                  "CLK_DOMAIN": {
+                    "value": "design_1_xdma_0_0_axi_aclk",
+                    "value_src": "default_prop"
                   }
                 }
               },
